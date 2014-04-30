@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import javax.swing.UIManager;
+
 import org.simpleframework.xml.ElementList;
 
 public class PrintElementSetupList {
@@ -31,8 +33,8 @@ public class PrintElementSetupList {
 
 	public final static int PARA_COUNT = 19;
 	
-	private final String PARA_NAMES[] = { "Gruppennummer", "Gruppengröße", "Wochentag", "Datum", "WW Einstufung", 
-			"Kanutour", "Schulung", "Flussname", "Start", "Ziel", "Flusslänge", "Anfahrt", "Zeit", "Bemerkung",
+	private final String PARA_NAMES[] = { "Gruppennummer", "Gruppengr\u00f6\u00dfe", "Wochentag", "Datum", "WW Einstufung", 
+			"Kanutour", "Schulung", "Flussname", "Start", "Ziel", "Flussl\u00e4nge", "Anfahrt", "Zeit", "Bemerkung",
 			"Auto 1", "Auto 2", "Auto 3", "Teilnehmer Start", "Teilnehmer Ende" };
 
 	
@@ -41,6 +43,7 @@ public class PrintElementSetupList {
 
 	public PrintElementSetupList () {
 		printElements = new ArrayList<PrintElementSetup>();
+		setDefaultPrintElementConfiguration ((Font) UIManager.getDefaults().get("TextField.font"));
 	}
 	
 	public PrintElementSetupList (Font defaultFont) {
@@ -50,6 +53,7 @@ public class PrintElementSetupList {
 		for (int i = 0; i < PARA_COUNT; i++) {
 			printElements.add(new PrintElementSetup (defaultFont, new Point (0,0), Color.black));
 		}
+		setDefaultPrintElementConfiguration (defaultFont);
 		
 	}
 	

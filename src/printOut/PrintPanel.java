@@ -1,13 +1,12 @@
 package printOut;
 
+import gui.MainWindow;
+
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Stroke;
-import java.awt.geom.AffineTransform;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -18,27 +17,24 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 import tripDB.Trip;
-import tripDB.TripDB;
 
 @SuppressWarnings("serial")
 public class PrintPanel extends JPanel implements Printable {
 	
 	private ImageIcon formSheet;
-//	private JLabel pictureLabel;
-//	private JLabel groupNumberLabel;
-	private TripDB trips;
+	private Boolean printOnFormSheet;
 	private Date dayToPrint;
 	private List<Trip> tripsOfDay;
 	private PrintElementSetupList printSetup;
 	
-	public PrintPanel (ImageIcon formSheet, TripDB trips, Date dayToPrint, PrintElementSetupList printSetup) {
+	public PrintPanel (ImageIcon formSheet, Date dayToPrint, PrintElementSetupList printSetup, Boolean printOnFormSheet) {
 		
 		super (null);
 		
 		this.formSheet = formSheet;
-		this.trips = trips;
+		this.printOnFormSheet = printOnFormSheet;
 		this.dayToPrint = dayToPrint;
-		tripsOfDay = trips.getAllTrips(dayToPrint);
+		tripsOfDay = MainWindow.tripDB.getAllTrips(dayToPrint);
 		this.printSetup = printSetup;
 	}
 
@@ -51,12 +47,13 @@ public class PrintPanel extends JPanel implements Printable {
 		
 		Font oldFont = g.getFont();
         Graphics2D g2d = (Graphics2D) g;
-		double scaleX = g2d.getDeviceConfiguration().getDefaultTransform().getScaleX();
-		double scaleY = g2d.getDeviceConfiguration().getDefaultTransform().getScaleY();
-   
-		if ((scaleX == 1.0) && (scaleY == 1.0))
-			g2d.drawImage(formSheet.getImage(), 0, 0, (int)pageFormat.getWidth(), (int)pageFormat.getHeight(), 0, 0, formSheet.getIconWidth(), formSheet.getIconHeight(), null);
-
+        
+       	double scaleX = g2d.getDeviceConfiguration().getDefaultTransform().getScaleX();
+       	double scaleY = g2d.getDeviceConfiguration().getDefaultTransform().getScaleY();
+       	// this is just to detect, if we print to screen or to a printer output
+       	if (((scaleX == 1.0) && (scaleY == 1.0)) || !printOnFormSheet)
+       		g2d.drawImage(formSheet.getImage(), 0, 0, (int)pageFormat.getWidth(), (int)pageFormat.getHeight(), 0, 0, formSheet.getIconWidth(), formSheet.getIconHeight(), null);
+        
         putText (g2d, tripsOfDay.get(pageIndex).getGroupNumber().toString(), PrintElementSetupList.FONT_GROUP_NUMBER);
         putText (g2d, tripsOfDay.get(pageIndex).getTotalGroupSize().toString(), PrintElementSetupList.FONT_GROUP_SIZE);
         putText (g2d, tripsOfDay.get(pageIndex).getRiver().getRiverName(), PrintElementSetupList.FONT_RIVERNAME);

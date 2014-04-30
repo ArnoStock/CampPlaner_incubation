@@ -54,6 +54,7 @@ public class TripListRenderer extends JPanel implements ListCellRenderer<TripCom
 		wwTopLevelLabel.setText ("\u02AC" + value.getWwTopLevel());
 		tripFromToLabel.setText ("   " + value.getFromToString());
 		
+		rosterNamesLabel.setForeground(value.getRosterColor());
 		rosterNamesLabel.setText(value.getRosterNames());
 		
 		if (isSelected) {

@@ -1,8 +1,11 @@
 package tripDB;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.util.List;
 
 import riverDB.River;
+import rosterDB.Roster;
 
 @SuppressWarnings("serial")
 public class TripComponent extends Component {
@@ -47,6 +50,31 @@ public class TripComponent extends Component {
 		return r;
 	}
 
+	public Color getRosterColor() {
+
+		if ((trip == null) || (trip.getRosterCount() == 0)) {
+			return Color.RED;
+		}
+		
+		int rcnt = 0;
+		for (Roster r : trip.getRosterList()) {
+			if (!r.isAvailableAt(trip.getTripDate()))
+					return Color.RED;
+			if (!r.getIsAspirant())
+				rcnt++;
+		}
+		
+		if (rcnt == 0)
+			return Color.RED;
+		if (rcnt > 1)
+			return Color.ORANGE;
+		return Color.BLACK;
+	}
+
+	public List<Roster> getTripRosterList () {
+		return trip.getRosterList();
+	}
+
 	public String getWwTopLevel() {
 		River r = trip.getRiver();
 		if (r == null) {
@@ -64,5 +92,5 @@ public class TripComponent extends Component {
 
 		return r.getTripFrom() + " \u25BA " + r.getTripTo();
 	}
-	
+
 }

@@ -22,7 +22,6 @@ public class Roster extends Component {
     public Roster() {
 		givenName = "Vorname";
 		familyName = "Hausname";
-		nickName = "";
 		phoneNumber = "+49";
 		isAspirant = false;
 		rosterAvailability = new ArrayList<RosterAvailability>();
@@ -32,17 +31,15 @@ public class Roster extends Component {
     public Roster(int rosterID) {
 		givenName = "Vorname";
 		familyName = "Hausname";
-		nickName = "";
 		phoneNumber = "+49";
 		isAspirant = false;
 		rosterAvailability = new ArrayList<RosterAvailability>();
 		this.rosterID = rosterID;
 	}
 
-	public Roster(int rosterID, String familyName, String givenName, String nickName, String phoneNumber, Boolean isAspirant) {
+	public Roster(int rosterID, String familyName, String givenName, String phoneNumber, Boolean isAspirant) {
 		this.givenName = givenName;
 		this.familyName = familyName;
-		this.nickName = nickName;
 		this.phoneNumber = phoneNumber;
 		this.isAspirant = isAspirant;
 		rosterAvailability = new ArrayList<RosterAvailability>();
@@ -58,9 +55,6 @@ public class Roster extends Component {
     @Attribute
     private String familyName;
     
-    @Attribute
-    private String nickName;
-
     @Attribute
     private String phoneNumber;
     
@@ -131,22 +125,6 @@ public class Roster extends Component {
 	}
 
 	/**
-	 * @return the nickName
-	 */
-	public String getNickName() {
-		return nickName;
-	}
-
-	/**
-	 * @param nickName the nickName to set
-	 */
-	public void setNickName(String nickName) {
-		String oldNickName = this.nickName;
-		this.nickName = nickName;
-		rosterChangeSupport.firePropertyChange("nickName", oldNickName, nickName);
-	}
-
-	/**
 	 * @return the phoneNumber
 	 */
 	public String getPhoneNumber() {
@@ -197,7 +175,7 @@ public class Roster extends Component {
 	
 	@Override
 	public String toString () {
-		return givenName + " " + familyName + " (" + nickName + ") ";
+		return getFullName();
 	}
 	
 	public int getRosterAvailabilityCode (Date date) {
@@ -237,6 +215,11 @@ public class Roster extends Component {
 
 	public int getRosterID() {
 		return rosterID;
+	}
+
+	public String getFullName() {
+		// TODO Auto-generated method stub
+		return givenName + " " + familyName;
 	}
 
 }

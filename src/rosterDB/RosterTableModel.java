@@ -1,36 +1,30 @@
 package rosterDB;
 
-import gui.SetupData;
-
-import java.util.List;
-
+import gui.MainWindow;
 import javax.swing.table.DefaultTableModel;
 
 @SuppressWarnings("serial")
 public class RosterTableModel extends DefaultTableModel {
 
-	List<Roster> rosters;
-	SetupData setupData;
-	
-	
-	public RosterTableModel(List<Roster> rosters, SetupData setupData) {
+	public RosterTableModel() {
 		super ();
-		this.rosters = rosters;
-		this.setupData = setupData;
 	}
 	
 	@Override
 	public int getRowCount() {
 
-		if (rosters != null)
-			return rosters.size();
+		if (MainWindow.rosterDB == null)
+			return 0;
+		
+		if (MainWindow.rosterDB.getRosters() != null)
+			return MainWindow.rosterDB.getRosters().size();
 		return 0;
 	}
 	
 	@Override
 	public int getColumnCount() {
 		
-		return (int) (2 + setupData.getEventLength ());
+		return (int) (3 + MainWindow.setupData.getEventLength ());
 	}
 	
 	@Override
@@ -44,33 +38,35 @@ public class RosterTableModel extends DefaultTableModel {
 			return "Name";
 		if (column == 1)
 			return "Vorname";
-		return setupData.getDateAsString(column-2);
+		return MainWindow.setupData.getDateAsString(column-2);
 	}
 	
 	@Override
 	public Object getValueAt(int row, int column) {
 		
-		if (rosters == null) {
+		if (MainWindow.rosterDB.getRosters() == null) {
 			return "";
 		}
 		
 		if (column == 0) {
-			return rosters.get(row).getFamilyName();
+			return MainWindow.rosterDB.getRosters().get(row).getFamilyName();
 		}
 		if (column == 1) {
-			return rosters.get(row).getGivenName();
+			return MainWindow.rosterDB.getRosters().get(row).getGivenName();
 		}
 		
-		return rosters.get(row).checkAvailability(setupData.getDateAt(column-2));
+		return MainWindow.rosterDB.getRosters().get(row).checkAvailability(MainWindow.setupData.getDateAt(column-2));
 	}
 
 	@Override 
 	public void setValueAt (Object val, int row, int column) {
-		rosters.get(row).setAvailability (setupData.getDateAt(column-2), val);
+		MainWindow.rosterDB.getRosters().get(row).setAvailability (MainWindow.setupData.getDateAt(column-2), val);
+		fireTableDataChanged();
 	}
 
 	public void insertElementAt(Roster newRoster, int i) {
-		rosters.add(i, newRoster);		
+		MainWindow.rosterDB.getRosters().add(i, newRoster);		
+		fireTableDataChanged();
 	}
 	
 

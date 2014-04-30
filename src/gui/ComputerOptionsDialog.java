@@ -87,8 +87,6 @@ public class ComputerOptionsDialog extends JDialog implements ActionListener {
 		
 		if ((event.getSource().equals(btnOk)) || (event.getSource().equals(btnCancel))) {
 	    	modalResult = (event.getActionCommand().equals("ok"));
-//	    	setupData.setEventStartDate(eventStart.getTime());
-//	    	setupData.setEventEndDate(eventEnd.getTime());
 	    	setVisible(false);
 		}
 	}

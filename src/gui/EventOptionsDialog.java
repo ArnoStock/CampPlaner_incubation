@@ -3,6 +3,7 @@ package gui;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Event;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,6 +11,7 @@ import java.util.Calendar;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -39,6 +41,10 @@ public class EventOptionsDialog extends JDialog implements ActionListener, Chang
 		this.setupData= setupData;
 		eventStart = Calendar.getInstance();
 		eventEnd = Calendar.getInstance();
+		
+		JPanel textPanel = new JPanel(new FlowLayout (FlowLayout.LEADING));
+		textPanel.add(new JLabel("Erster Veranstaltungstag - letzter Veranstaltungstag"));
+		add ("North", textPanel);
 		
         JPanel datePanel = new JPanel ();
 
@@ -71,7 +77,7 @@ public class EventOptionsDialog extends JDialog implements ActionListener, Chang
         add("South", btnPanel);
         
         pack();
-
+        setResizable(false);
 	}
 
 	public boolean getModalResult() {

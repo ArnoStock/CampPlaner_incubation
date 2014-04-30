@@ -1,11 +1,17 @@
 package tripDB;
 
+import gui.MainWindow;
+
 import java.io.File;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.JTextArea;
 
@@ -38,14 +44,27 @@ public class TripDB {
 
 	public void write(String fileName) throws Exception {
 
-//		Strategy strategy = new AnnotationStrategy();
-//	    Serializer serializer = new Persister(strategy);
 	    Serializer serializer = new Persister();
 	    File file = new File(fileName);
 	    serializer.write(this, file);
 	    isDataChanged = false;
 		
 	}
+	
+	public void write(ZipOutputStream zipOut) throws Exception {
+
+		// save XML document to ZIP file
+		ZipEntry entry = new ZipEntry("Trips.xml");
+		zipOut.putNextEntry(entry);
+		
+		Serializer serializer = new Persister();
+	    serializer.write(this, zipOut);
+
+	    zipOut.closeEntry();
+	    isDataChanged = false;
+
+	}
+
 	
 	public static TripDB read (String fileName) throws Exception{
 		Serializer serializer = new Persister();
@@ -54,6 +73,18 @@ public class TripDB {
 		return tripDB;
 	}
 
+	public static TripDB read (ZipFile zipIn) throws Exception {
+		
+		ZipEntry tripsZipObj = zipIn.getEntry("Trips.xml");
+		InputStream zipInStream = zipIn.getInputStream(tripsZipObj);
+		
+		Serializer serializer = new Persister();
+		TripDB tripDB = serializer.read(TripDB.class, zipInStream);
+
+		zipInStream.close();
+		
+		return tripDB;
+	}
 
 	public Trip add(Date date) {
 		
@@ -143,32 +174,94 @@ public class TripDB {
 	
 	public boolean checkDay (Date d, JTextArea ta) {
 		
-		ta.setText("Prüfung:\n");
+		ta.setText("Pr\u00fcfung:\n");
 		
 		checkErrors = 0;
 		checkWarnings = 0;
+		Boolean fatalError = false;
 		
-		for (Trip t: getAllTrips(d)) {
-			
-			int issues = 0;
-			
-			ta.append("\nGruppe " + t.getGroupNumber()+ "\n");
+		// check roster assignment
+		for (Roster r: MainWindow.rosterDB.getRosters()) {
+	    	if (r.isAvailableAt (d)) {
+	    		int a = getRosterAssignmentCount (d, r);
+	    		if (a == 0) {
+	    			ta.append("Fehler: Fahrtenleiter " + r.getGivenName() + " " +
+	    						r.getFamilyName() + " hat noch keine Gruppe.\n");
+	    			checkErrors++;
+	    		}
+	    		else if (a == 2) {
+	    			ta.append("Warnung: Fahrtenleiter " + r.getGivenName() + " " +
+    						r.getFamilyName() + " hat zwei Gruppen.\n");
+	    			checkWarnings++;
+	    		}
+	    		else if (a > 2) {
+	    			ta.append("Fehler: Fahrtenleiter " + r.getGivenName() + " " +
+    						r.getFamilyName() + " hat mehr als zwei Gruppen.\n");
+	    			checkErrors++;
+	    		}
+	    	}
+		}
 
-			// check, if all trips have a roster assigned
-			if (t.getRosterList().size() == 0) {
-				ta.append("Fehler: Gruppe " + t.getGroupNumber() + " hat keinen Fahrtenleiter!\n");
-				checkErrors++; issues++;
-			}
-			else if (t.getRosterList().size() > 1) {
-				ta.append("Warnung: Gruppe hat " + t.getRosterList().size() + " Fahrtenleiter\n");
-				checkWarnings++; issues++;
-			}
-			
-			if (issues == 0) {
-				ta.append("Ok\n");
+	    // check trips
+	    if (getAllTrips(d).size() == 0) {
+			ta.append("\nFehler: F\u00fcr diesen Tag gibt es keine Gruppen!\n");
+			checkErrors++;
+			fatalError = true;
+		}
+		else {
+			for (Trip t: getAllTrips(d)) {
+				
+				int issues = 0;
+				
+				ta.append("\nGruppe " + t.getGroupNumber()+ "\n");
+	
+				// check, if all trips have a roster assigned
+				if (t.getRosterList().size() == 0) {
+					ta.append("Fehler: Gruppe " + t.getGroupNumber() + " hat keinen Fahrtenleiter!\n");
+					checkErrors++; issues++;
+				}
+				else {
+					// count rosters and aspirants
+					int roster = 0;
+					int aspirant = 0;
+					for (Roster r: t.getRosterList()) {
+						if (r.getIsAspirant())
+							aspirant++;
+						else roster++;
+					}
+					
+					if (aspirant > 1) {
+						ta.append("Warnung: Gruppe hat " + aspirant + " Fahrtenleiteranw\u00e4rter\n");
+						checkWarnings++; issues++;
+					}
+					
+					if (roster == 0) {
+						ta.append("Fehler: Gruppe " + t.getGroupNumber() + " hat keinen Fahrtenleiter!\n");
+						checkErrors++; issues++;
+					}
+
+					if (roster > 1) {
+						ta.append("Warnung: Gruppe hat " + roster + " Fahrtenleiter\n");
+						checkWarnings++; issues++;
+					}
+				}
+
+				// check, if roster is available
+				for (Roster r: t.getRosterList())
+					if (!r.isAvailableAt (d)) {
+						ta.append("Fehler: Fahrtenleiter " + r.getGivenName() + " " + 
+									" hat keinen Dienst!\n");
+						checkErrors++; issues++;
+					}
+				
+				if (issues == 0) {
+					ta.append("Ok\n");
+				}
 			}
 		}
-		return (checkErrors == 0) && (checkWarnings == 0);
+		ta.append("\nEnde");
+			
+		return !fatalError;
 	}
 
 	public int getCheckErrors() {
@@ -177,6 +270,14 @@ public class TripDB {
 
 	public int getCheckWarnings() {
 		return checkWarnings;
+	}
+	
+	public boolean isRosterAssigned (Integer id) {
+		for (Trip t: trips) {
+			if (t.isRosterAssigned(id))
+				return true;
+		}
+		return false;
 	}
 	
 }

@@ -1,6 +1,6 @@
 package rosterDB;
 
-import gui.SetupData;
+import gui.MainWindow;
 import java.awt.BorderLayout;
 import java.awt.Checkbox;
 import java.awt.Color;
@@ -12,9 +12,15 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -26,15 +32,13 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
 @SuppressWarnings("serial")
-public class RosterDBPanel extends JPanel implements ActionListener, ListSelectionListener {
+public class RosterDBPanel extends JPanel implements ActionListener, ListSelectionListener, PropertyChangeListener {
 
 	private RosterTableModel rosterTableModel;
 	private JTable rosterTable;
-	private RosterDB rosterDB;
 	
 	private JTextField familyNameField;
 	private JTextField givenNameField;
-	private JTextField nickNameField;
 	private JTextField phoneNumberField;
 	
 	private JButton okButton;
@@ -50,14 +54,15 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 	private JButton availableButton;
 	private Checkbox isAspirantCheckBox;
 	
-	public RosterDBPanel(RosterDB rosterDB, SetupData setupData) {
+	public RosterDBPanel() {
 		super ();
 		// create table showing roster availability
 		setBackground(Color.GREEN);
 	    setLayout(new BorderLayout());
 		// 
-		rosterTableModel = new RosterTableModel(rosterDB.getRosters(), setupData);
+		rosterTableModel = new RosterTableModel();
 		rosterTable = new JTable(rosterTableModel);
+		rosterTable.setAutoCreateColumnsFromModel (true);
 		rosterTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             
 			@Override
@@ -75,9 +80,15 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 	                setHorizontalAlignment(JLabel.CENTER);
 				} 
 				else if (column < 2) {
-						setBackground(new Color (220,220,220));
+	                setHorizontalAlignment(JLabel.LEADING);
+	                if (isSelected) {
+	                	setBackground(new Color (240,240,240));
+						setForeground(new Color (120, 120, 120));
+	                }
+	                else {
+	                	setBackground(new Color (220,220,220));
 						setForeground(Color.BLACK);
-		                setHorizontalAlignment(JLabel.LEADING);
+	                }
 				}
 				else if (!isSelected) {
 					setBackground(Color.WHITE);
@@ -90,6 +101,7 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
         });
 		rosterTable.setCellSelectionEnabled(true);
 		rosterTable.setColumnSelectionAllowed(true);
+		rosterTable.setRowSelectionAllowed(true);
 		rosterTable.getTableHeader().setReorderingAllowed(false);
 		rosterTable.getSelectionModel().addListSelectionListener( this );
 		
@@ -124,12 +136,6 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		editPane.add (givenNameField, cd);
 		cl.gridy += 1; cd.gridy += 1;
 
-		// nick name
-		editPane.add(new JLabel ("Spitzname: "), cl);
-		nickNameField = new JTextField ("");
-		editPane.add (nickNameField, cd);
-		cl.gridy += 1; cd.gridy += 1;
-
 		// phone
 		editPane.add(new JLabel ("Handy: "), cl);
 		phoneNumberField = new JTextField ("+49 ");
@@ -146,7 +152,7 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 
 		editPane.setMinimumSize(editPane.getPreferredSize());
 
-		setEditFieldsEditable (false);
+		setEditFieldIsEditable (false);
 		
 		// Buttons
 		newButton = new JButton ("Neu");
@@ -236,10 +242,7 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
         //Provide a preferred size for the split pane.
         splitPane.setPreferredSize(new Dimension(600, 300));
         add (splitPane);
-        
-		setRosterDB(rosterDB);
-
-		if (rosterTable.getComponentCount() > 0)
+		if (rosterTable.getComponentCount() > 1)
 			rosterTable.setRowSelectionInterval(0, 0);
 		
 	}
@@ -248,7 +251,6 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		
 		familyNameField.setText(selRoster.getFamilyName());
 		givenNameField.setText(selRoster.getGivenName());
-		nickNameField.setText(selRoster.getNickName());
 		phoneNumberField.setText(selRoster.getPhoneNumber());
 		isAspirantCheckBox.setState(selRoster.getIsAspirant());
 	}
@@ -257,7 +259,7 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 
 		int selRow = rosterTable.getSelectedRow();
 		if (selRow >= 0) {
-			refreshEditDataFrom (rosterDB.getRosters().get(selRow));
+			refreshEditDataFrom (MainWindow.rosterDB.getRosters().get(selRow));
 		}
 	}
 	
@@ -265,10 +267,9 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		
 		int selRow = rosterTable.getSelectedRow();
 		if (selRow >= 0) {
-			Roster selRoster = rosterDB.getRosters().get(selRow);
+			Roster selRoster = MainWindow.rosterDB.getRosters().get(selRow);
 			selRoster.setFamilyName (familyNameField.getText());
 			selRoster.setGivenName (givenNameField.getText());
-			selRoster.setNickName(nickNameField.getText());
 			selRoster.setPhoneNumber(phoneNumberField.getText());
 			selRoster.setIsAspirant(isAspirantCheckBox.getState());
 		}
@@ -299,18 +300,12 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		
 	}
 
-	private void setEditFieldsEditable(boolean ed) {
+	private void setEditFieldIsEditable(boolean ed) {
 		
 		familyNameField.setEditable (ed);
 		givenNameField.setEditable(ed);
-		nickNameField.setEditable(ed);
 		phoneNumberField.setEditable(ed);
 		isAspirantCheckBox.setEnabled(ed);
-	}
-
-	private void setRosterDB(RosterDB rosterDB) {
-		this.rosterDB = rosterDB;
-		listScroller.setPreferredSize(rosterTable.getPreferredSize());
 	}
 
 	@Override
@@ -318,23 +313,56 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		
 		if (evt.getSource().equals(newButton)) {
 			
-			refreshEditDataFrom(rosterDB.newRoster ());
+			refreshEditDataFrom(MainWindow.rosterDB.newRoster ());
 
-			setEditFieldsEditable(true);		
+			setEditFieldIsEditable(true);
 			rosterTable.setEnabled(false);
 			setButtonMode(1);
+			rosterTable.setRowSelectionInterval(rosterTable.getRowCount()-1, rosterTable.getRowCount()-1);
+			rosterTableModel.fireTableDataChanged();
 		}
 
 		if (evt.getSource().equals(editButton)) {
 			
-			setEditFieldsEditable(true);		
+			setEditFieldIsEditable(true);		
 			rosterTable.setEnabled(false);
 			setButtonMode(1);
 		}
 		
+		if (evt.getSource().equals(deleteButton)) {
+			
+			ArrayList<Integer> delRows = new ArrayList<Integer>();
+			for (int r: rosterTable.getSelectedRows())
+				delRows.add(r);
+			Comparator<Integer> comparator = Collections.reverseOrder();
+			Collections.sort(delRows, comparator);
+			
+			for (int selRow: delRows) {
+				if (selRow >= 0) {
+					Roster selRoster = MainWindow.rosterDB.getRosters().get(selRow);
+					if (MainWindow.tripDB.isRosterAssigned(selRoster.getRosterID())) {
+				   		JOptionPane.showMessageDialog(null,
+				    			"Fahrtenleiter " + selRoster.getFullName() + "\nwurden bereits Fahrten zugeteilt.",
+								"L\u00f6schen nicht m\u00f6glich", 
+								JOptionPane.OK_OPTION);
+					}
+					else {
+			    		if ( JOptionPane.showConfirmDialog(null,
+								"Soll Fahrtenleiter " + selRoster.getFullName() + " wirklich gelöscht werden?",
+								"Fahrtenleiter löschen?", 
+								JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION ) {
+			    			
+								MainWindow.rosterDB.deleteRoster(selRoster);
+							}
+					}
+				}
+			}
+			rosterTableModel.fireTableDataChanged();
+		}
+		
 		if (evt.getSource().equals(okButton)) {
 			
-			setEditFieldsEditable(false);		
+			setEditFieldIsEditable(false);		
 			rosterTable.setEnabled(true);
 			setButtonMode(0);
 			// store changed data to object
@@ -343,7 +371,7 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 
 		if (evt.getSource().equals(cancelButton)) {
 			
-			setEditFieldsEditable(false);		
+			setEditFieldIsEditable(false);		
 			rosterTable.setEnabled(true);
 			setButtonMode(0);
 	        refreshEditData ();
@@ -366,18 +394,39 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 	
 	private void setSelectedCellContents (int availabilityCode) {
 		
-		for (int column: rosterTable.getSelectedColumns()) {
-			for (int row: rosterTable.getSelectedRows()) {
+		int cols[] = rosterTable.getSelectedColumns();
+		int rows[] = rosterTable.getSelectedRows();
+		for (int column: cols) {
+			for (int row: rows) {
 				rosterTableModel.setValueAt(availabilityCode, row, column);
 			}
 		}
-		rosterTable.invalidate();
-		rosterTable.repaint();
 	}
 
 	@Override
 	public void valueChanged(ListSelectionEvent evt) {
 		refreshEditData();
 	}
+	
+	public void refreshList () {
+		if ((rosterTableModel == null) || (MainWindow.rosterDB == null))
+			return;
+		rosterTable.removeAll();
+		for (Roster r: MainWindow.rosterDB.getRosters()) {
+			rosterTable.add( r);
+	    }
+		rosterTableModel.fireTableDataChanged();
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		rosterTableModel.fireTableStructureChanged();
+
+		rosterTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		for (int i = 2; i < rosterTable.getColumnCount(); i++)
+			rosterTable.getColumnModel().getColumn(i).setPreferredWidth(45);
+
+	}
+
 
 }

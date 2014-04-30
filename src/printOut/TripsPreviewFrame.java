@@ -1,6 +1,6 @@
 package printOut;
 
-import gui.SetupData;
+import gui.MainWindow;
 
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -57,9 +57,9 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 	
 	private final int[] RES = { 25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500 };
 	
-	private JButton print = new JButton("Alles", new ImageIcon ("toolbarButtonGraphics/general/Print16.gif"));
-	private JButton printThisPage = new JButton("Seite", new ImageIcon ("toolbarButtonGraphics/general/Print16.gif"));
-	private JButton cancel = new JButton("Zurück");
+	private JButton print = new JButton("Alles", MainWindow.getImageIcon("toolbarButtonGraphics/general/Print16.gif"));
+	private JButton printThisPage = new JButton("Seite", MainWindow.getImageIcon("toolbarButtonGraphics/general/Print16.gif"));
+	private JButton cancel = new JButton("Zur\u00fcck");
 	private JCheckBox printOntoFormSheet = new JCheckBox ("Formular");
 	private Pageable pg = null;
 	private double scale = 1.0;
@@ -68,21 +68,10 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 	private JComboBox<Resolution> rcb = new JComboBox<Resolution>();
 	private CardLayout cl = new CardLayout();
 	private JPanel p = new JPanel(cl);
-	private JButton back = new JButton(new ImageIcon ("toolbarButtonGraphics/navigation/Back16.gif")),
-				forward = new JButton(new ImageIcon ("toolbarButtonGraphics/navigation/Forward16.gif"));
-	private SetupData setupData;
-	
-/*
-	public PreviewFrame(Frame parentWindow, Pageable pg, SetupData setupData) {
-		super(parentWindow, "Print Preview");
-		setModal(true);
+	private JButton back = new JButton(MainWindow.getImageIcon ("toolbarButtonGraphics/navigation/Back16.gif")),
+				forward = new JButton(MainWindow.getImageIcon ("toolbarButtonGraphics/navigation/Forward16.gif"));
 
-		this.setupData = setupData;
-		this.pg = pg;
-		createPreview();
-	}
-*/
-	public TripsPreviewFrame(Frame parentWindow, final Printable pr, final PageFormat p, SetupData setupData) {
+	public TripsPreviewFrame(Frame parentWindow, final Printable pr, final PageFormat p) {
 		super(parentWindow, "Print Preview");
 		setModal(true);
 
@@ -104,12 +93,10 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 
 	private void createPreview() {
 		page = new Page[pg.getNumberOfPages()];
-//		FlowLayout fl = new FlowLayout();
 		PageFormat pf = pg.getPageFormat(0);
 		Dimension size = new Dimension((int)pf.getPaper().getWidth(), (int)pf.getPaper().getHeight());
 		if(pf.getOrientation() != PageFormat.PORTRAIT)
 		size = new Dimension(size.height, size.width);
-//		JPanel temp = null;
 		for(int i=0; i<page.length; i++) {
 			jcb.addItem(i+1);
 			page[i] = new Page(i, size);
@@ -121,10 +108,7 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 		rcb.setSelectedIndex(3);
 		setTopPanel();
 		this.getContentPane().add(p, "Center");
-//		Dimension d = this.getToolkit().getScreenSize();
 		this.setSize(size.width+20,size.height+40);
-//		this.setSize(d.width,d.height-60);
-//		slider.setSize(this.getWidth()/2, slider.getPreferredSize().height);
 		this.setVisible(true);
 		page[jcb.getSelectedIndex()].refreshScale();
 	}
@@ -161,11 +145,12 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 		cancel.setMnemonic('Z');
 		printThisPage.setMnemonic('S');
 		printOntoFormSheet.setToolTipText("Soll ein Formblatt bedruckt werden?");
+		printOntoFormSheet.setSelected(MainWindow.setupData.getPrintOnFormSheet());
+		printOntoFormSheet.addActionListener(this);
 		this.getContentPane().add(topPanel, "North");
 	}
 	
 	public void itemStateChanged(ItemEvent ie) {
-
 		if (ie.getSource().equals(jcb)) {
 			cl.show(p, jcb.getSelectedItem().toString());
 			page[jcb.getSelectedIndex()].refreshScale();
@@ -212,7 +197,10 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 			if(jcb.getSelectedIndex() == jcb.getItemCount()-1)
 				forward.setEnabled(false);
 			}
-			else if(o == cancel) this.dispose();
+		else if(o == printOntoFormSheet) {
+			MainWindow.setupData.setPrintOnFormSheet(printOntoFormSheet.isSelected());
+		}
+		else if(o == cancel) this.dispose();
 	} 
 	
 	public void printCurrentPage() {

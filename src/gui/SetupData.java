@@ -2,7 +2,8 @@ package gui;
 
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.TextField;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,6 +24,8 @@ import printOut.PrintElementSetupList;
 @Root(name="Setup")
 public class SetupData extends Component {
 	
+	private final PropertyChangeSupport setupChangeSupport = new PropertyChangeSupport(this);
+	
 	public SetupData () {
 		super ();
 		eventStartDate = new Date ();
@@ -31,7 +34,9 @@ public class SetupData extends Component {
 		rightNow.add(Calendar.DATE, 1);
 		eventEndDate = rightNow.getTime();
 		printElementsSetups = new PrintElementSetupList ((Font) UIManager.getDefaults().get("TextField.font"));
-		fileName = "TripDB.cplan";
+		dataFileName = "TripDB.cplan";
+		formFileName = "FAHRTENZETTEL11.jpg";
+		printOnFormSheet = new Boolean (true);
 	}
 	
     @Attribute
@@ -40,8 +45,12 @@ public class SetupData extends Component {
     @Attribute
     private Date eventEndDate;
     
-    @Attribute String fileName;
+    @Attribute String dataFileName;
     
+    @Attribute String formFileName;
+    
+    @Attribute Boolean printOnFormSheet;
+
     @Element
     private PrintElementSetupList printElementsSetups;
     
@@ -64,7 +73,9 @@ public class SetupData extends Component {
 	 * @param eventStartDate the eventStartDate to set
 	 */
 	public void setEventStartDate(Date eventStartDate) {
+		Date oldDate = this.eventStartDate;
 		this.eventStartDate = eventStartDate;
+		setupChangeSupport.firePropertyChange("eventStartDate", oldDate, eventStartDate);
 	}
 
 	/**
@@ -78,7 +89,9 @@ public class SetupData extends Component {
 	 * @param eventEndDate the eventEndDate to set
 	 */
 	public void setEventEndDate(Date eventEndDate) {
+		Date oldDate = this.eventEndDate;
 		this.eventEndDate = eventEndDate;
+		setupChangeSupport.firePropertyChange("eventEndDate", oldDate, eventEndDate);
 	}
 
 	public void write (String fileName) throws Exception{
@@ -117,15 +130,46 @@ public class SetupData extends Component {
 		return cal.getTime();
 	}
 	
-	public String getFileName () {
-		
-		return fileName;
-		
+	public String getDataFileName () {
+		return dataFileName;
 	}
 
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
+	public String getFormFileName () {
+		return formFileName;
 	}
 
-   
+	public void setDataFileName(String dataFileName) {
+		this.dataFileName = dataFileName;
+	}
+
+	public void setFormFileName(String formFileName) {
+		this.formFileName = formFileName;
+	}
+
+	/**
+	 * @return the printOnFormSheet
+	 */
+	public Boolean getPrintOnFormSheet() {
+		if (printOnFormSheet == null)
+			printOnFormSheet = new Boolean (true);
+		return printOnFormSheet;
+	}
+
+	/**
+	 * @param printOnFormSheet the printOnFormSheet to set
+	 */
+	public void setPrintOnFormSheet(Boolean printOnFormSheet) {
+		this.printOnFormSheet = printOnFormSheet;
+	}
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+  	
+        this.setupChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+
+    	this.setupChangeSupport.removePropertyChangeListener(listener);
+    }
+
 }

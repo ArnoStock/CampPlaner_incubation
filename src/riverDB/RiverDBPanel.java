@@ -1,6 +1,8 @@
 package riverDB;
 
 
+import gui.MainWindow;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -28,7 +30,6 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 
 	private DefaultListModel<River> riverListModel;
 	private JList<River> riverList;
-	private RiverDB riverDB;
 	
 	private JTextField riverNameField;
 	private JTextField fromNameField;
@@ -51,18 +52,13 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 	private JComboBox<String> unitOfWaterLevelCombo;
 	private JComboBox<Integer> wwTopLevelCombo;
 	
-	public RiverDBPanel(RiverDB riverDB) {
+	public RiverDBPanel() {
 		super ();
 		// setup the riverDB GUI
 		setBackground(Color.BLUE);
 	    setLayout(new BorderLayout());
 		
-		setRiverDB(riverDB);
-		// 
 		riverListModel = new DefaultListModel<River>();
-		for (River r: riverDB.getAllRivers()) {
-			riverListModel.addElement(r);
-		}
 		riverList = new JList<River>(riverListModel);
 		riverList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		riverList.setSelectedIndex(0);
@@ -108,7 +104,7 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		cl.gridy += 1; cd.gridy += 1;
 
 		// default group size
-		editPane.add(new JLabel ("Gruppengr\u00F6ße: "), cl);
+		editPane.add(new JLabel ("Gruppengr\u00F6\u00dfe: "), cl);
 		defaultGroupSizeField = new JTextField ("6");
 		editPane.add (defaultGroupSizeField, cd);		
 		cl.gridy += 1; cd.gridy += 1;
@@ -256,7 +252,7 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 	private void copySelectedRiver() {
 
 		for (River r:((JList<River>) riverList).getSelectedValuesList()) {
-			riverListModel.insertElementAt(riverDB.cloneRiver (r), riverList.getSelectedIndex()+1);
+			riverListModel.insertElementAt(MainWindow.riverDB.cloneRiver (r), riverList.getSelectedIndex()+1);
 		}
 	}
 
@@ -265,18 +261,10 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		for (River r:((JList<River>) riverList).getSelectedValuesList()) {
 			
 			riverListModel.removeElement(r);
-			riverDB.removeRiver (r);
+			MainWindow.riverDB.removeRiver (r);
 		}
 	}
 
-	
-	public RiverDB getRiverDB() {
-		return riverDB;
-	}
-
-	public void setRiverDB(RiverDB riverDB) {
-		this.riverDB = riverDB;
-	}
 	
 	private void setEditFieldsEditable (Boolean ed) {
 		
@@ -330,7 +318,7 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		}
 		
 		if (evt.getSource().equals(newButton)) {
-			riverListModel.insertElementAt(riverDB.newRiver (), riverList.getSelectedIndex()+1);
+			riverListModel.insertElementAt(MainWindow.riverDB.newRiver (), riverList.getSelectedIndex()+1);
 		}
 		
 		if (evt.getSource().equals(copyButton)) {
@@ -362,6 +350,15 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 			minWaterLevelUnitField.setText (unitOfWaterLevelCombo.getSelectedItem().toString());
 			maxWaterLevelUnitField.setText (unitOfWaterLevelCombo.getSelectedItem().toString());
 		}
+	}
+	
+	public void refreshList () {
+		if ((riverListModel == null) || (MainWindow.riverDB == null))
+			return;
+		riverListModel.removeAllElements();
+		for (River r: MainWindow.riverDB.getAllRivers()) {
+    		riverListModel.addElement( r);
+	    }
 	}
 
 }

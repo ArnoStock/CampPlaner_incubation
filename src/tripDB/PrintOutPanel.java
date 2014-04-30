@@ -1,6 +1,6 @@
 package tripDB;
 
-import gui.SetupData;
+import gui.MainWindow;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.MediaTracker;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PageFormat;
@@ -16,10 +17,10 @@ import java.awt.print.PrinterJob;
 import java.util.Calendar;
 
 import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.standard.MediaSize.ISO;
 import javax.print.attribute.standard.MediaSizeName;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -32,7 +33,6 @@ import printOut.PrintPanel;
 @SuppressWarnings("serial")
 public class PrintOutPanel extends JPanel implements ActionListener {
 
-	private TripDB tripDB;
 	private Calendar targetDay;
 	
 	private PrinterJob printerJob = PrinterJob.getPrinterJob();
@@ -45,19 +45,13 @@ public class PrintOutPanel extends JPanel implements ActionListener {
 	private JTextField errorsField;
 	private JTextField warningsField;
 	
-	private TripsPreviewFrame preview;
-	
 	private ImageIcon formSheet;
 	
-	private SetupData setupData;
-	
-	public PrintOutPanel(TripDB tripDB, Calendar targetDay, SetupData setupData) {
+	public PrintOutPanel(Calendar targetDay) {
 
 		super (new BorderLayout ());
 		
-		this.tripDB = tripDB;
 		this.targetDay = targetDay;
-		this.setupData = setupData;
 		printAttributes.add(MediaSizeName.ISO_A4);
 
 		JPanel bottomPanel = new JPanel (new GridLayout (2,1));
@@ -71,12 +65,12 @@ public class PrintOutPanel extends JPanel implements ActionListener {
 		
 		JPanel bp = new JPanel (new GridLayout (1,2));
 		
-		previewTripsButton = new JButton ("Fahrtenzettel", new ImageIcon ("toolbarButtonGraphics/general/PrintPreview24.gif"));
+		previewTripsButton = new JButton ("Fahrtenzettel", MainWindow.getImageIcon("toolbarButtonGraphics/general/PrintPreview24.gif"));
 		previewTripsButton.setActionCommand("PreviewTrips");
 		previewTripsButton.addActionListener(this);
 		bp.add (previewTripsButton);
 	
-		previewSummaryButton = new JButton ("Zusammenfassung", new ImageIcon ("toolbarButtonGraphics/general/PrintPreview24.gif"));
+		previewSummaryButton = new JButton ("Zusammenfassung", MainWindow.getImageIcon("toolbarButtonGraphics/general/PrintPreview24.gif"));
 		previewSummaryButton.setActionCommand("PreviewSummary");
 		previewSummaryButton.addActionListener(this);
 		bp.add (previewSummaryButton);
@@ -86,16 +80,12 @@ public class PrintOutPanel extends JPanel implements ActionListener {
 		add(bottomPanel, BorderLayout.SOUTH);
 		
 		checkResultText = new JTextArea();
+		checkResultText.setEditable(false);
 		JScrollPane ts = new JScrollPane (checkResultText);
 		add (ts, BorderLayout.CENTER);
-		
-		formSheet = new ImageIcon ("/home/arno/Dokumente/Dokumente/JEM/FAHRTENZETTEL11.jpg", "Fahrtenzettel");
-//		formSheet = new ImageIcon ("/home/arno/Dokumente/Dokumente/JEM/FAHRTENZETTEL_hires.jpg", "Fahrtenzettel");
-
 	}
 	
-	public void updateTripList (TripDB tripDB) {
-		this.tripDB = tripDB;
+	public void updateTripList () {
 		checkTrips();
 	}
 
@@ -114,33 +104,62 @@ public class PrintOutPanel extends JPanel implements ActionListener {
 	
 	@Override
 	public void actionPerformed(ActionEvent evt) {
+		
+		if (MainWindow.tripDB.getCheckErrors() + MainWindow.tripDB.getCheckWarnings() > 0)
+			if ( JOptionPane.showConfirmDialog(null,
+    			"Die Planung enth\u00E4lt\n  " + 
+    					MainWindow.tripDB.getCheckErrors() + " Fehler und\n  " +
+    					MainWindow.tripDB.getCheckWarnings() + " Warnungen.\n" + 
+    			"Soll der Ausdruck wirklich erfolgen?",
+				"Die Planung enth\u00E4lt Fehler!", 
+				JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION ) {
+					return;
+			}
+
 	
 		if (evt.getActionCommand().equals("PreviewTrips")) {
 			
-			PrintPanel previewPanel = new PrintPanel (formSheet, tripDB, targetDay.getTime(), setupData.getPrintElementSetupList());
+			formSheet = new ImageIcon (MainWindow.setupData.getFormFileName(), "Fahrtenzettel");
+			if (formSheet.getImageLoadStatus() != MediaTracker.COMPLETE) {
+		    	JOptionPane.showMessageDialog(null,
+						"Die Formularvorlage "+ MainWindow.setupData.getFormFileName() +" wurde nicht gefunden.", 
+		    			"Dateifehler",
+						JOptionPane.OK_OPTION);
+			}
+			PrintPanel previewPanel = new PrintPanel (formSheet, targetDay.getTime(), MainWindow.setupData.getPrintElementSetupList(),
+					MainWindow.setupData.getPrintOnFormSheet());
 			
 //			PreviewFrame preview = new PreviewFrame ((Frame) SwingUtilities.getRoot(this), testLabel.getPrintable(new MessageFormat("Capitals"), new MessageFormat("{0}")), printerJob.getPageFormat(printAttributes));
 			PageFormat pf = printerJob.getPageFormat(printAttributes); 
 			Paper p = pf.getPaper();
 			p.setImageableArea(0, 0, p.getWidth(), p.getHeight());
 			pf.setPaper(p);
-			TripsPreviewFrame preview = new TripsPreviewFrame ((Frame) SwingUtilities.getRoot(this), previewPanel, pf ,setupData);
+			new TripsPreviewFrame ((Frame) SwingUtilities.getRoot(this), previewPanel, pf);
 			
 		}
 
 		if (evt.getActionCommand().equals("PreviewSummary")) {
-			printerJob.pageDialog(printAttributes);
+//			printerJob.pageDialog(printAttributes);
 //			printerJob.printDialog(printAttributes);
-
+	    	JOptionPane.showMessageDialog(null,
+					"Diese Funktion ist momentan noch nicht verf\u00fcgbar.", 
+	    			"Bitte etwas Geduld...",
+					JOptionPane.OK_OPTION);
 		}
 		
+	}
+	
+	private void enablePreviewButtons (Boolean e) {
+		previewTripsButton.setEnabled(e);
+		previewSummaryButton.setEnabled(e);
+
 	}
 
 	public void checkTrips() {
 		
-		tripDB.checkDay (targetDay.getTime(), checkResultText);
-		int e = tripDB.getCheckErrors();
-		int w = tripDB.getCheckWarnings();
+		enablePreviewButtons (MainWindow.tripDB.checkDay (targetDay.getTime(), checkResultText));
+		int e = MainWindow.tripDB.getCheckErrors();
+		int w = MainWindow.tripDB.getCheckWarnings();
 		if (e > 0) {
 			errorsField.setFont(errorsField.getFont().deriveFont(Font.BOLD));
 			errorsField.setForeground(Color.RED);

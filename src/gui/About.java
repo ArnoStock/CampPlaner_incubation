@@ -5,12 +5,20 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 @SuppressWarnings("serial")
 public class About extends JDialog implements ActionListener {
@@ -24,12 +32,37 @@ public class About extends JDialog implements ActionListener {
 		JPanel p = new JPanel (new FlowLayout ());
 		
 		p = new JPanel (new FlowLayout ());
-		p.add (new JLabel ("Camp Planer V0.1"));
+		p.add (new JLabel ("Camp Planer V0.2"));
 		add (p, BorderLayout.NORTH);
 
-		p = new JPanel (new FlowLayout ());
-		p.add (new JLabel ("(c) 2014 Arno Stock"));
-		add (p, BorderLayout.CENTER);
+		String s = "Fehler!";
+		try {
+			char[] c = new char [2048];
+			if (ClassLoader.getSystemResource("text/About.txt") != null) {
+				InputStream in = ClassLoader.getSystemResource("text/About.txt").openStream();
+				if (in != null) {
+					InputStreamReader r = new InputStreamReader (in);
+					r.read(c);
+					s = new String (c);
+				}
+			}
+			else {
+				FileReader r = new FileReader ("text/About.txt");
+				r.read(c);
+				s = new String (c);
+			}
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		JTextArea t = new JTextArea (s);
+		t.setEditable(false);
+		add (t, BorderLayout.CENTER);
 		
 		JButton btnOk = new JButton ("Ok");
 		btnOk.addActionListener(this);
@@ -37,9 +70,13 @@ public class About extends JDialog implements ActionListener {
 		p.add (btnOk);
 		add (p, BorderLayout.SOUTH);
 		
-		setMinimumSize(new Dimension (230, 200));
+		int width = t.getPreferredSize().width + 10;
+		if (width > 400)
+			width = 400;
+		int height = t.getPreferredSize().height + 100;
+		setMinimumSize(new Dimension (width, height));
 		setLocationByPlatform(true);
-		
+		setResizable(false);
 	}
 
 	@Override

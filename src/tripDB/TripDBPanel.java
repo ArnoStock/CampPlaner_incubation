@@ -1,6 +1,6 @@
 package tripDB;
 
-import gui.SetupData;
+import gui.MainWindow;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -28,6 +28,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -45,9 +46,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import riverDB.River;
-import riverDB.RiverDB;
 import rosterDB.Roster;
-import rosterDB.RosterDB;
 
 import net.sourceforge.jdatepicker.JDateComponentFactory;
 import net.sourceforge.jdatepicker.JDatePicker;
@@ -67,9 +66,6 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
     private JDatePicker targetDayPicker;
 	private JList<RiverComponent> riverList;
 	private JList<RosterComponent> rosterList;
-	private RosterDB rosterDB;
-	private RiverDB riverDB;
-	private TripDB tripDB;
 	
 	private JButton btnAdd;
 	private JButton btnUpdate;
@@ -98,23 +94,15 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	
 	private JPanel panelStartTime;
 	private PrintOutPanel panelPreview;
-	private SetupData setupData;
 	    
-	public TripDBPanel(TripDB tripDB, RosterDB rosterDB, RiverDB riverDB, SetupData setupData) {
+	public TripDBPanel() {
 		super (new BorderLayout ());
-		
-		this.rosterDB = rosterDB;
-		this.riverDB = riverDB;
-		this.tripDB = tripDB;
-		this.setupData = setupData;
-		riverDB.addPropertyChangeListener(this);
-		rosterDB.addPropertyChangeListener(this);
 		
 		targetDay = Calendar.getInstance();
 		targetDay.setTime(new Date ());
 		targetDay.add(Calendar.DATE, 1);
 		Calendar startDay = Calendar.getInstance();
-		startDay.setTime(setupData.getEventStartDate());
+		startDay.setTime(MainWindow.setupData.getEventStartDate());
 		if (targetDay.before(startDay))
 			targetDay = startDay;
 
@@ -140,7 +128,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 		JPanel wwLevelPanel = new JPanel ();
 		tfWW[0] = addStatisticsField(wwLevelPanel, "WW-I:");
 		tfWW[1] = addStatisticsField(wwLevelPanel, "WW-II:");
-		tfWW[2] = addStatisticsField(wwLevelPanel, "WW-II:");
+		tfWW[2] = addStatisticsField(wwLevelPanel, "WW-III:");
 		tfWW[3] = addStatisticsField(wwLevelPanel, "WW-IV:");
 		tfWW[4] = addStatisticsField(wwLevelPanel, "WW-V:");
 		tfTotal = addStatisticsField(wwLevelPanel, "Total:");
@@ -169,9 +157,6 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    // create trip list in left panel
 	    riverList = new JList<RiverComponent> (riverListModel);
 	    riverList.setCellRenderer(new RiverListRenderer());
-	    for (River r: riverDB.getAllRivers()) {
-	    	riverListModel.addElement( new RiverComponent(r));
-	    }
 	    panelRivers.add (new JScrollPane(riverList), BorderLayout.CENTER);
 	    riverList.setDragEnabled(true);
 	    riverList.setTransferHandler(new RiverListTransferHandler(this));
@@ -183,7 +168,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    rosterListModel = new DefaultListModel<RosterComponent>();  
 	    // create trip list in left panel
 	    rosterList = new JList<RosterComponent> (rosterListModel);
-	    rosterList.setCellRenderer(new RosterListRenderer(tripDB, targetDay.getTime()));
+	    rosterList.setCellRenderer(new RosterListRenderer(targetDay.getTime()));
 	    updateRosterList ();
 	    panelRosters.add (new JScrollPane(rosterList), BorderLayout.CENTER);
 	    rosterList.setDragEnabled(true);
@@ -284,7 +269,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
         tabpanePlanningSteps.addTab("Zeiten", startTimesScrollPane);
 
 	    // create panel with print previews
-        panelPreview = new PrintOutPanel (tripDB, targetDay, setupData);
+        panelPreview = new PrintOutPanel (targetDay);
         panelPreview.setBackground(new Color (220, 220, 220));
         tabpanePlanningSteps.addTab("Drucken", panelPreview);
 	    
@@ -368,21 +353,19 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 
 	}
 	
-	
-	
 	private void updateRosterList() {
 
 		availableRosters = 0;
-		if (rosterListModel == null)
+		if ((rosterListModel == null) || (MainWindow.rosterDB == null))
 			return;
 		rosterListModel.removeAllElements();
-		for (Roster r: rosterDB.getRosters()) {
+		for (Roster r: MainWindow.rosterDB.getRosters()) {
 	    	if (r.isAvailableAt (targetDay.getTime())) {
 	    		rosterListModel.addElement( new RosterComponent(r));
 	    		availableRosters++;
 	    	}
 	    }
-		tfRoster.setText(tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
+		tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 	}
 
 
@@ -462,13 +445,13 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			detailsRosterRemoveBtn.setEnabled(!detailsRosterListModel.isEmpty());
 			tripList.invalidate();
 			tripList.repaint();
-			tfRoster.setText(tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
+			tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 			return;
 		}
 		
 		if (evt.getActionCommand().contentEquals("Add")) {
 			
-			Trip t = tripDB.add ( targetDay.getTime() );
+			Trip t = MainWindow.tripDB.add ( targetDay.getTime() );
 			if (tabpanePlanningSteps.getSelectedIndex() == 0) {
 				if (!riverList.isSelectionEmpty())
 					t.setRiver(riverList.getSelectedValue().getRiver());
@@ -478,7 +461,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 					t.addRoster(rosterList.getSelectedValue().getRoster());
 			}
 			tripListModel.addElement (new TripComponent (t));
-			tfRoster.setText(tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
+			tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 			updateParticipantsPanel ();
 			updateGroupIndex();
 			updateTimePanel ();
@@ -505,12 +488,13 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 							tc.getTrip().addRoster(rosterList.getSelectedValue().getRoster());
 						tripList.invalidate();
 						tripList.repaint();
+						rosterList.repaint();
 					}
 				}
 				
 				
 			}
-			tfRoster.setText(tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
+			tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 			updateParticipantsPanel ();
 			updateDetailsPane();
 			updateTimePanel ();
@@ -554,13 +538,20 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			List<TripComponent> selectedTrips = tripList.getSelectedValuesList();
 			if (!selectedTrips.isEmpty()){
 				
+		   		if ( JOptionPane.showConfirmDialog(null,
+		    			"Sollen die ausgewählten Gruppen gelöscht werden?",
+						"Gruppen löschen?", 
+						JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION ) {
+							return;
+				}
+				
 				for (TripComponent tc: selectedTrips) {
 					
-					tripDB.delete(tc.getTrip());
+					MainWindow.tripDB.delete(tc.getTrip());
 					tripListModel.removeElement(tc);
 					
 				}
-				tfRoster.setText(tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
+				tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 				updateParticipantsPanel ();
 				tripList.invalidate();
 				tripList.repaint();
@@ -577,11 +568,11 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			return;
 		
 		tripListModel.removeAllElements();
-		for (Trip t : tripDB.getAllTrips (targetDay.getTime()))
+		for (Trip t : MainWindow.tripDB.getAllTrips (targetDay.getTime()))
 			tripListModel.addElement (new TripComponent (t));
-		tfRoster.setText(tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
+		tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 		updateParticipantsPanel ();
-		panelPreview.updateTripList (tripDB);
+		panelPreview.updateTripList ();
 		
 	}
 
@@ -591,26 +582,24 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			return;
 		
 		riverListModel.removeAllElements();
-		for (River r : riverDB.getAllRivers ())
+		for (River r : MainWindow.riverDB.getAllRivers ())
 			riverListModel.addElement (new RiverComponent (r));
 		
 	}
 
-	public void setTripDB(TripDB tripDB) {
-
-		this.tripDB = tripDB;
-		updateTripList ();
-		
-	}
-
-
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
+		refreshList();
+	}
+
+	public void refreshList () {
+
+		updateRiverList();
+		updateRosterList();
+		updateDetailsPane();
+		updateTripList();
+		tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 		
-			updateRiverList();
-			updateRosterList();
-			updateDetailsPane();
-			tfRoster.setText(tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 	}
 
 	private void updateDetailsPane () {
@@ -677,7 +666,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	public void dropRiver(River river, javax.swing.TransferHandler.DropLocation dropLocation) {
 		TripComponent tc = tripList.getSelectedValue();
 		if (tc == null) {
-			tc = new TripComponent (tripDB.add ( targetDay.getTime() ));
+			tc = new TripComponent (MainWindow.tripDB.add ( targetDay.getTime() ));
 			tripListModel.addElement (tc);
 		}
 		tc.getTrip().setRiver(river);
@@ -690,14 +679,15 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	public void dropRoster(Integer rosterID, javax.swing.TransferHandler.DropLocation dropLocation) {
 		TripComponent tc = tripList.getSelectedValue();
 		if (tc == null) {
-			tc = new TripComponent (tripDB.add ( targetDay.getTime() ));
+			tc = new TripComponent (MainWindow.tripDB.add ( targetDay.getTime() ));
 			tripListModel.addElement (tc);
 		}
-		tc.getTrip().addRoster(rosterDB.getRosterByID(rosterID));
+		tc.getTrip().addRoster(MainWindow.rosterDB.getRosterByID(rosterID));
 		updateGroupIndex();
-		tfRoster.setText(tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
+		tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 		tripList.invalidate();
 		tripList.repaint();
+		rosterList.repaint();
 	}
 
 	public void updateTimePanel () {
@@ -714,7 +704,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	
 	public void updateParticipantsPanel () {
 		
-		Integer c[] = tripDB.getParticipantsCount (targetDay.getTime());
+		Integer c[] = MainWindow.tripDB.getParticipantsCount (targetDay.getTime());
 		Integer t = 0;
 		for (int i = 0; i < 5; i++) {
 			t += c[i];

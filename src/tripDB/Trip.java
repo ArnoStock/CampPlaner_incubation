@@ -1,5 +1,7 @@
 package tripDB;
 
+import gui.MainWindow;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,7 +21,7 @@ public class Trip {
 	
 	public Trip (Date tripDate) {
 		super ();
-		this.rosters = new ArrayList<Roster> ();
+		this.rosters = new ArrayList<Integer> ();
 		this.river = null;
 		this.tripDate = tripDate;
 		this.groupNumber = 0;
@@ -39,7 +41,7 @@ public class Trip {
 	
 	public Trip () {
 		super ();
-		this.rosters = new ArrayList<Roster> ();
+		this.rosters = new ArrayList<Integer> ();
 		this.river = null;
 		this.tripDate = null;
 		this.groupNumber = 0;
@@ -58,7 +60,7 @@ public class Trip {
 
 
 	@ElementList(name="Rosters")
-	List<Roster> rosters ;
+	List<Integer> rosters;
 
 	@Element(name="River")
 	River river;
@@ -111,7 +113,6 @@ public class Trip {
 		this.driverCount = driverCount;
 	}
 
-
 	@Attribute
 	boolean isEducation;
 
@@ -124,7 +125,10 @@ public class Trip {
 	}
 	
 	public String getRosterName (int i) {
-		return rosters.get(i).getGivenName() + " " + rosters.get(i).getFamilyName();
+		Roster r = MainWindow.rosterDB.getRosterByID (rosters.get(i));
+		if (r.getIsAspirant())
+			return "HFL->" + r.getGivenName() + " " + r.getFamilyName() + "<";
+		return r.getGivenName() + " " + r.getFamilyName();
 	}
 	
 	public void setRiver (River river) {
@@ -137,10 +141,10 @@ public class Trip {
 		if (roster == null)
 			return;
 		
-		if (rosters.contains(roster)) {
+		if (rosters.contains(roster.getRosterID())) {
 			return;
 		}
-		rosters.add(roster);
+		rosters.add(roster.getRosterID());
 	}
 
 	public void removeRoster (Roster roster) {
@@ -148,8 +152,8 @@ public class Trip {
 		if (roster == null)
 			return;
 		
-		if (rosters.contains(roster)) {
-			rosters.remove(roster);
+		if (rosters.contains(roster.getRosterID())) {
+			rosters.remove ((Object)roster.getRosterID());
 		}
 		
 	}
@@ -229,7 +233,11 @@ public class Trip {
 	}
 
 	public List<Roster> getRosterList() {
-		return rosters;
+		ArrayList<Roster> tripRosters = new ArrayList<Roster> ();
+		for (Integer i: rosters) {
+			tripRosters.add(MainWindow.rosterDB.getRosterByID(i));
+		}
+		return tripRosters;
 	}
 
 	public Integer getGroupNumber() {
@@ -245,6 +253,10 @@ public class Trip {
 
 	public Integer getGroupSize() {
 		return totalGroupSize - rosters.size();
+	}
+	
+	public boolean isRosterAssigned (Integer id) {
+		return rosters.contains(id);
 	}
 
 

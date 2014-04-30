@@ -1,5 +1,7 @@
 package tripDB;
 
+import gui.MainWindow;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -15,15 +17,13 @@ import javax.swing.ListCellRenderer;
 public class RosterListRenderer extends JPanel implements ListCellRenderer<RosterComponent> {
 
 	private JLabel rosterLabel;
-	private TripDB tripDB;
 	private Date d;
 	
-	public RosterListRenderer (TripDB tripDB, Date d) {
+	public RosterListRenderer (Date d) {
 		super (new FlowLayout (FlowLayout.LEADING));
 
 		rosterLabel = new JLabel ();
 		add (rosterLabel);
-		this.tripDB = tripDB;
 		this.d = d;
 		setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 	}
@@ -33,7 +33,7 @@ public class RosterListRenderer extends JPanel implements ListCellRenderer<Roste
 	public Component getListCellRendererComponent(JList<? extends RosterComponent> list,
 			RosterComponent value, int index, boolean isSelected, boolean cellHasFocus) {
 
-		Integer cnt = tripDB.getRosterAssignmentCount(d, value.getRoster());
+		Integer cnt = MainWindow.tripDB.getRosterAssignmentCount(d, value.getRoster());
 		Color col = Color.BLACK;
 		if (value.getRoster().getIsAspirant()) {
 			col = Color.BLUE;

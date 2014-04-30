@@ -1,26 +1,31 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 
 @SuppressWarnings("serial")
-public class FilesSetupPanel extends JPanel implements ActionListener {
+public class FilesSetupPanel extends JPanel implements ActionListener, FocusListener {
 	
 	JFileChooser fc = new JFileChooser();
-	JLabel tripFormFileNameLabel = new JLabel();
-	JButton choosetripFormFileNameButton = new JButton ("Ändern");
+	JTextField tripFormFileNameLabel = new JTextField();
+	JTextField dataFileFileNameLabel = new JTextField();
+	JButton chooseDataFileNameButton = new JButton ("\u00c4ndern ...");
+	JButton choosetripFormFileNameButton = new JButton ("\u00c4ndern ...");
 	SetupData setupData;
 	
 	
@@ -33,25 +38,65 @@ public class FilesSetupPanel extends JPanel implements ActionListener {
 		
 		add (new JLabel ("Dateinamen und Pfade"), BorderLayout.NORTH);
 		
-		JPanel cp = new JPanel (new GridLayout (0, 1));
+		JPanel gp = new JPanel (new BorderLayout());
+		JPanel cp = new JPanel (new GridBagLayout ());
+		GridBagConstraints c = new GridBagConstraints();
 
-		JPanel fnp = new JPanel (new FlowLayout (FlowLayout.LEADING));
-		fnp.add (tripFormFileNameLabel);
-		tripFormFileNameLabel.setText(setupData.getFileName());
-		fnp.add (choosetripFormFileNameButton);
+		c.insets = new Insets (0, 4, 0, 2);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		cp.add (new JLabel("Dateiname der Fahrtenplanungen"), c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy += 1;
+		cp.add (dataFileFileNameLabel, c);
+		dataFileFileNameLabel.setText(setupData.getDataFileName());
+		c.fill = GridBagConstraints.NONE;
+		c.gridx += 1;
+		cp.add (chooseDataFileNameButton, c);
+		chooseDataFileNameButton.setActionCommand("editDataFileName");
+		chooseDataFileNameButton.addActionListener (this);
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy += 1;
+		cp.add (new JLabel("Dateiname des Ausschreibungsformulars"), c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy += 1;
+		cp.add (tripFormFileNameLabel, c);
+		tripFormFileNameLabel.setText(setupData.getFormFileName());
+		c.fill = GridBagConstraints.NONE;
+		c.gridx += 1;
+		cp.add (choosetripFormFileNameButton, c);
 		choosetripFormFileNameButton.setActionCommand("editTripFormFileName");
 		choosetripFormFileNameButton.addActionListener (this);
-		
-		cp.add(fnp);
-		JScrollPane sp = new JScrollPane(cp);
+
+		gp.add (cp, BorderLayout.NORTH);
+		JScrollPane sp = new JScrollPane(gp);
 		add (sp, BorderLayout.CENTER);
 		
+		tripFormFileNameLabel.addFocusListener(this);
+		dataFileFileNameLabel.addFocusListener(this);
 	}
 
 
 
 	@Override
 	public void actionPerformed(ActionEvent evt) {
+		
+		if (evt.getActionCommand().equals("editDataFileName")) {
+			
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(
+			        "JPG & GIF Images", "jpg", "gif");
+			    fc.setFileFilter(filter);
+			    int returnVal = fc.showOpenDialog(this);
+			    if(returnVal == JFileChooser.APPROVE_OPTION) {
+			       setupData.setDataFileName (fc.getSelectedFile().getAbsolutePath());
+			       dataFileFileNameLabel.setText(setupData.getDataFileName());			    }
+		}
+
 		
 		if (evt.getActionCommand().equals("editTripFormFileName")) {
 			
@@ -60,14 +105,27 @@ public class FilesSetupPanel extends JPanel implements ActionListener {
 			    fc.setFileFilter(filter);
 			    int returnVal = fc.showOpenDialog(this);
 			    if(returnVal == JFileChooser.APPROVE_OPTION) {
-			       System.out.println("You chose to open this file: " +
-			            fc.getSelectedFile().getName());
-			       setupData.setFileName (fc.getSelectedFile().getAbsolutePath());
+			       setupData.setFormFileName (fc.getSelectedFile().getAbsolutePath());
+			       tripFormFileNameLabel.setText(setupData.getFormFileName());
 			    }
-			
 		}
-
+		
 	}
-	
+
+	@Override
+	public void focusLost(FocusEvent evt) {
+		
+		if (evt.getSource().equals(tripFormFileNameLabel)) {
+			setupData.setFormFileName (tripFormFileNameLabel.getText());
+		}
+		
+		if (evt.getSource().equals(dataFileFileNameLabel)) {
+			setupData.setFormFileName (dataFileFileNameLabel.getText());
+		}
+	}
+
+	@Override
+	public void focusGained(FocusEvent arg0) {
+	}
 
 }
