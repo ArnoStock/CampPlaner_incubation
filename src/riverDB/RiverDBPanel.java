@@ -247,6 +247,11 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		selRiver.setMinWaterLevel(Integer.parseInt(minWaterLevelField.getText()));
 		selRiver.setMaxWaterLevel(Integer.parseInt(maxWaterLevelField.getText()));
 		selRiver.setUnitOfWaterLevel(unitOfWaterLevelCombo.getSelectedItem().toString());
+		
+		// sort list
+		MainWindow.riverDB.sort();
+		// refresh JList
+		refreshList();
 	}
 	
 	private void copySelectedRiver() {
@@ -319,6 +324,10 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		
 		if (evt.getSource().equals(newButton)) {
 			riverListModel.insertElementAt(MainWindow.riverDB.newRiver (), riverList.getSelectedIndex()+1);
+			riverList.setSelectedIndex(riverList.getSelectedIndex()+1);
+			setEditFieldsEditable(true);		
+			riverList.setEnabled(false);
+			setButtonMode(1);
 		}
 		
 		if (evt.getSource().equals(copyButton)) {
@@ -331,7 +340,7 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		
 		if (evt.getSource().equals(okButton)) {
 			
-			setEditFieldsEditable(false);		
+			setEditFieldsEditable(false);
 			riverList.setEnabled(true);
 			setButtonMode(0);
 			// store changed data to object

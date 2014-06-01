@@ -61,6 +61,7 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 	private JButton printThisPage = new JButton("Seite", MainWindow.getImageIcon("toolbarButtonGraphics/general/Print16.gif"));
 	private JButton cancel = new JButton("Zur\u00fcck");
 	private JCheckBox printOntoFormSheet = new JCheckBox ("Formular");
+	private boolean formSheetAvailable;
 	private Pageable pg = null;
 	private double scale = 1.0;
 	private Page page[] = null;
@@ -71,14 +72,19 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 	private JButton back = new JButton(MainWindow.getImageIcon ("toolbarButtonGraphics/navigation/Back16.gif")),
 				forward = new JButton(MainWindow.getImageIcon ("toolbarButtonGraphics/navigation/Forward16.gif"));
 
-	public TripsPreviewFrame(Frame parentWindow, final Printable pr, final PageFormat p) {
+	public TripsPreviewFrame(Frame parentWindow, final Printable pr, final PageFormat p, boolean formSheetAvailable) {
 		super(parentWindow, "Print Preview");
 		setModal(true);
+		this.formSheetAvailable = formSheetAvailable;
 
 		this.pg = new Pageable() {
 			@Override
 			public int getNumberOfPages() {
-				Graphics g = new java.awt.image.BufferedImage(2,2,java.awt.image.BufferedImage.TYPE_INT_RGB).getGraphics();
+				Graphics g = new java.awt.image.BufferedImage((int)p.getImageableWidth(),(int)p.getHeight(),java.awt.image.BufferedImage.TYPE_INT_RGB).getGraphics();
+				
+//	System.out.println (p.getWidth() + "/" + p.getHeight());
+				
+//				Graphics g = new java.awt.image.BufferedImage(2,2,java.awt.image.BufferedImage.TYPE_INT_RGB).getGraphics();
 				int n=0;
 				try { while(pr.print(g, p, n) == Printable.PAGE_EXISTS) n++; }
 				catch(Exception ex) {ex.printStackTrace();}
@@ -130,7 +136,8 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 		temp.add(jcb);
 		temp.add(forward);
 		temp.add(cancel);
-		temp.add (printOntoFormSheet);
+		if (formSheetAvailable)
+			temp.add (printOntoFormSheet);
 		temp.add(print);
 		temp.add(printThisPage);
 		gbc.gridx = 1;
@@ -144,9 +151,11 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 		print.setMnemonic('A');
 		cancel.setMnemonic('Z');
 		printThisPage.setMnemonic('S');
-		printOntoFormSheet.setToolTipText("Soll ein Formblatt bedruckt werden?");
-		printOntoFormSheet.setSelected(MainWindow.setupData.getPrintOnFormSheet());
-		printOntoFormSheet.addActionListener(this);
+		if (formSheetAvailable) {
+			printOntoFormSheet.setToolTipText("Soll ein Formblatt bedruckt werden?");
+			printOntoFormSheet.setSelected(MainWindow.setupData.getPrintOnFormSheet());
+			printOntoFormSheet.addActionListener(this);
+		}
 		this.getContentPane().add(topPanel, "North");
 	}
 	
@@ -182,7 +191,7 @@ public class TripsPreviewFrame extends JDialog implements ActionListener, ItemLi
 				pj.print();
 			}
 			catch(Exception ex) {
-				JOptionPane.showMessageDialog(null,ex.toString(), "Error in Printing",1);
+				JOptionPane.showMessageDialog(null,ex.toString(), "Fehler beim Drucken",1);
 			}
 		}
 		else if(o == printThisPage)

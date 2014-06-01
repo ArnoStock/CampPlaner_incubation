@@ -1,9 +1,13 @@
 package printOut;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -14,7 +18,7 @@ import javax.swing.JTextField;
 import gui.JFontChooser;
 
 @SuppressWarnings("serial")
-public class PrintElementPanel extends JPanel implements ActionListener {
+public class PrintElementPanel extends JPanel implements ActionListener, KeyListener {
 
 	private PrintElementSetup setupData;
 	
@@ -45,9 +49,11 @@ public class PrintElementPanel extends JPanel implements ActionListener {
 		colorSetup.setActionCommand("Color");
 		xPos = new JTextField ("0000");
 		xPos.setPreferredSize(xPos.getPreferredSize());
+		xPos.addKeyListener(this);
 		yPos = new JTextField ("0000");
 		yPos.setPreferredSize(yPos.getPreferredSize());
-		
+		yPos.addKeyListener(this);
+
 		add (parameterName);
 		add (fontSetup);
 		add (colorSetup);
@@ -72,8 +78,11 @@ public class PrintElementPanel extends JPanel implements ActionListener {
 		}
 
 		if (e.getActionCommand().equals("Color")) {
-			setupData.setPrintColor(JColorChooser.showDialog(null, "Farbauswahl", setupData.getPrintColor()));
-    		updateElements ();
+			Color c = JColorChooser.showDialog(null, "Farbauswahl", setupData.getPrintColor());
+			if (c != null) {
+				setupData.setPrintColor(c);
+	    		updateElements ();
+			}
 		}
 		
 	}
@@ -94,6 +103,23 @@ public class PrintElementPanel extends JPanel implements ActionListener {
 	
 	public int getIndex () {
 		return myIndex;
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+	}
+
+	@Override
+	public void keyReleased(KeyEvent ke) {
+		if ((ke.getSource().equals(xPos)) || (ke.getSource().equals(yPos))) {
+			Integer x = Integer.decode(xPos.getText());
+			Integer y = Integer.decode(yPos.getText());
+			setupData.setAnchorPoint(new Point (x, y));
+		}
+	}
+
+	@Override
+	public void keyTyped(KeyEvent ke) {
 	}
 	
 }

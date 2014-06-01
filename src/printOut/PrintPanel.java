@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.font.TextLayout;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -22,20 +23,16 @@ import tripDB.Trip;
 public class PrintPanel extends JPanel implements Printable {
 	
 	private ImageIcon formSheet;
-	private Boolean printOnFormSheet;
 	private Date dayToPrint;
 	private List<Trip> tripsOfDay;
-	private PrintElementSetupList printSetup;
 	
-	public PrintPanel (ImageIcon formSheet, Date dayToPrint, PrintElementSetupList printSetup, Boolean printOnFormSheet) {
+	public PrintPanel (ImageIcon formSheet, Date dayToPrint) {
 		
 		super (null);
 		
 		this.formSheet = formSheet;
-		this.printOnFormSheet = printOnFormSheet;
 		this.dayToPrint = dayToPrint;
 		tripsOfDay = MainWindow.tripDB.getAllTrips(dayToPrint);
-		this.printSetup = printSetup;
 	}
 
 	@Override
@@ -51,7 +48,7 @@ public class PrintPanel extends JPanel implements Printable {
        	double scaleX = g2d.getDeviceConfiguration().getDefaultTransform().getScaleX();
        	double scaleY = g2d.getDeviceConfiguration().getDefaultTransform().getScaleY();
        	// this is just to detect, if we print to screen or to a printer output
-       	if (((scaleX == 1.0) && (scaleY == 1.0)) || !printOnFormSheet)
+       	if (((scaleX == 1.0) && (scaleY == 1.0)) || !MainWindow.setupData.getPrintOnFormSheet())
        		g2d.drawImage(formSheet.getImage(), 0, 0, (int)pageFormat.getWidth(), (int)pageFormat.getHeight(), 0, 0, formSheet.getIconWidth(), formSheet.getIconHeight(), null);
         
         putText (g2d, tripsOfDay.get(pageIndex).getGroupNumber().toString(), PrintElementSetupList.FONT_GROUP_NUMBER);
@@ -72,7 +69,7 @@ public class PrintPanel extends JPanel implements Printable {
         putText (g2d, new SimpleDateFormat("hh.mm").format(tripsOfDay.get(pageIndex).getTripStartTime()) , PrintElementSetupList.FONT_TIME);
         putText (g2d, "" + tripsOfDay.get(pageIndex).getRiver().getDistanceToStart(), PrintElementSetupList.FONT_DISTANCE);
 
-        putText (g2d, "" + tripsOfDay.get(pageIndex).getComment(), PrintElementSetupList.FONT_COMMENT);
+        putComment (g2d, "" + tripsOfDay.get(pageIndex).getComment(), PrintElementSetupList.FONT_COMMENT);
         
         int d = tripsOfDay.get(pageIndex).getDriverCount();
         if (d < 1) {
@@ -95,20 +92,35 @@ public class PrintPanel extends JPanel implements Printable {
 	
 	private void putText (Graphics2D g2d, String t, int i) {
 
-		g2d.setFont(printSetup.getPrintElementSetup (i).getPrintFont());
-		g2d.setColor(printSetup.getPrintElementSetup (i).getPrintColor());
-        Point a = printSetup.getPrintElementSetup (i).getAnchorPoint();
+		g2d.setFont(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintFont());
+		g2d.setColor(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintColor());
+        Point a = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getAnchorPoint();
         g2d.drawString(t, a.x, a.y);
+	}
+	
+	private void putComment (Graphics2D g2d, String t, int i) {
 
+		if ((t == null) || (t.equals(""))) {
+			return;
+		}
+		g2d.setColor(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintColor());
+        Point a = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getAnchorPoint();
+        TextLayout tl = new TextLayout("AbcdefghijklmnopqrstuvwyxzABCDEFGHIJKLMNOPQRSTUVWXYZ", 
+        		MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintFont(), 
+        		g2d.getFontRenderContext());
+        String[] outputs = t.split("\n");
+        for(int l=0; l<outputs.length; l++){
+            g2d.drawString(outputs[l], a.x,(int) (a.getY()+l*tl.getBounds().getHeight()*1.3));
+        }
 	}
 
 	private void xout_participants (Graphics2D g2d, int i, int j, int n) {
 		
 		if (n==13)
 			return;
-		g2d.setColor(printSetup.getPrintElementSetup (i).getPrintColor());
-        Point a = printSetup.getPrintElementSetup (i).getAnchorPoint();
-        Point b = printSetup.getPrintElementSetup (j).getAnchorPoint();
+		g2d.setColor(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintColor());
+        Point a = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getAnchorPoint();
+        Point b = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (j).getAnchorPoint();
         g2d.setStroke(new BasicStroke(5));
         int y1 = a.y + ((b.y -a.y) / 13) * n;
 		g2d.drawRect(a.x, y1, b.x - a.x, b.y - y1);
@@ -119,8 +131,8 @@ public class PrintPanel extends JPanel implements Printable {
 	
 	private void xout_car (Graphics2D g2d, int i) {
 		
-		g2d.setColor(printSetup.getPrintElementSetup (i).getPrintColor());
-        Point a = printSetup.getPrintElementSetup (i).getAnchorPoint();
+		g2d.setColor(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintColor());
+        Point a = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getAnchorPoint();
         g2d.setStroke(new BasicStroke(5));
 		g2d.drawRect(a.x, a.y, 220, 100);
 		g2d.drawLine(a.x, a.y, a.x+220, a.y+100);

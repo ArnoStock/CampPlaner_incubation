@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -272,5 +273,12 @@ public class RosterDB implements PropertyChangeListener {
 				JOptionPane.OK_OPTION);
 
 	}
+	
+	public void sort () {
+		Collections.sort(rosters);
+		isDataChanged = true;
+		rosterChangeSupport.firePropertyChange("sortedRosters", true, false);
+	}
+
 
 }

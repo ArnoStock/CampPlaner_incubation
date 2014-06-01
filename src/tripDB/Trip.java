@@ -62,7 +62,7 @@ public class Trip {
 	@ElementList(name="Rosters")
 	List<Integer> rosters;
 
-	@Element(name="River")
+	@Element(name="River", required=false)
 	River river;
 
 	// time and date is separated for handling reasons
@@ -89,14 +89,15 @@ public class Trip {
 	 * @return the comment
 	 */
 	public String getComment() {
-		return comment;
+		return comment.replaceAll("&#xD;","\n");
 	}
 
 	/**
 	 * @param comment the comment to set
 	 */
 	public void setComment(String comment) {
-		this.comment = comment;
+		this.comment = comment.replaceAll("\n", "&#xD;");
+		MainWindow.tripDB.tripDataChanged();
 	}
 
 	/**
@@ -111,6 +112,7 @@ public class Trip {
 	 */
 	public void setDriverCount(Integer driverCount) {
 		this.driverCount = driverCount;
+		MainWindow.tripDB.tripDataChanged();
 	}
 
 	@Attribute
@@ -131,9 +133,15 @@ public class Trip {
 		return r.getGivenName() + " " + r.getFamilyName();
 	}
 	
+	public String getRosterPhoneNumber (int i) {
+		Roster r = MainWindow.rosterDB.getRosterByID (rosters.get(i));
+		return r.getPhoneNumber();
+	}
+	
 	public void setRiver (River river) {
 		this.river = river;
 		totalGroupSize = river.getDefaultGroupSize();
+		MainWindow.tripDB.tripDataChanged();
 	}
 	
 	public void addRoster (Roster roster) {
@@ -174,6 +182,7 @@ public class Trip {
 	 */
 	public void setTripStartTime(Date tripStartTime) {
 		this.tripStartTime = tripStartTime;
+		MainWindow.tripDB.tripDataChanged();
 	}
 
 	/**
@@ -188,6 +197,7 @@ public class Trip {
 	 */
 	public void setTotalGroupSize(Integer totalGroupSize) {
 		this.totalGroupSize = totalGroupSize;
+		MainWindow.tripDB.tripDataChanged();
 	}
 
 	public Integer getTripLength() {
@@ -230,6 +240,7 @@ public class Trip {
 
 	public void setIsEducation(boolean isEducation) {
 		this.isEducation= isEducation ;
+		MainWindow.tripDB.tripDataChanged();
 	}
 
 	public List<Roster> getRosterList() {
@@ -249,6 +260,7 @@ public class Trip {
 	 */
 	public void setGroupNumber(Integer groupNumber) {
 		this.groupNumber = groupNumber;
+		MainWindow.tripDB.tripDataChanged();
 	}
 
 	public Integer getGroupSize() {

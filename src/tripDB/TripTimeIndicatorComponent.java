@@ -48,9 +48,7 @@ public class TripTimeIndicatorComponent extends JPanel implements ChangeListener
         startTimeSpinner.setEditor(new JSpinner.DateEditor(startTimeSpinner, "HH:mm"));
         startTimeSpinner.addChangeListener(this);
         slider.add (startTimeSpinner);
-//		Border empty = BorderFactory.createEmptyBorder(2,2,2,2);
 		Border raisedbevel = BorderFactory.createRaisedBevelBorder();
-//		Border compound = BorderFactory.createCompoundBorder(raisedbevel, empty);
 		slider.setBorder(raisedbevel);
 
         add (slider);
@@ -58,12 +56,9 @@ public class TripTimeIndicatorComponent extends JPanel implements ChangeListener
         slider.addMouseListener(this);
         
 		Border loweredbevel = BorderFactory.createLoweredBevelBorder();
-//		compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
 		setBorder(loweredbevel);
 		
-//		setPreferredSize(new Dimension (400, getPreferredSize().height));
 		setPreferredSize(new Dimension (INDICATOR_WIDTH, slider.getPreferredSize().height+6));
-//System.out.println ("loc: "+slider.getLocation());
 
 		scale = (INDICATOR_WIDTH-6-slider.getWidth()) / ((END_TIME_H - START_TIME_H)*60);
 
@@ -78,8 +73,22 @@ public class TripTimeIndicatorComponent extends JPanel implements ChangeListener
 	public void stateChanged(ChangeEvent arg0) {
 
 		Date d = (Date) startTimeSpinner.getValue();
-		trip.setTripStartTime(d);
-		slider.setLocation(timeToX(d), slider.getLocation().y);
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		int m = c.get(Calendar.MINUTE);
+		if (m % 15 != 0) {
+			if (m%15 > 8) {
+				m -= m%15;
+			}
+			else {
+				m += 15 - m%15;
+			}
+			c.set(Calendar.MINUTE, m);
+		}
+		
+		startTimeSpinner.setValue(c.getTime());
+		trip.setTripStartTime(c.getTime());
+		slider.setLocation(timeToX(c.getTime()), slider.getLocation().y);
 		
 	}
 	
@@ -91,8 +100,6 @@ public class TripTimeIndicatorComponent extends JPanel implements ChangeListener
 		if ((x + slider.getWidth() + 3) > INDICATOR_WIDTH) {
 			x = INDICATOR_WIDTH - slider.getWidth() - 3;
 		}
-		
-//System.out.println (this.getWidth() + " - "+ x + " " + slider.getWidth());
 		return x;
 	}
 	
@@ -123,10 +130,14 @@ public class TripTimeIndicatorComponent extends JPanel implements ChangeListener
 		Point p;
 		if (evt.getSource().equals(slider)) {
 			p = new Point (truncX(slider.getLocation().x + (evt.getX() - startPointX)), 3);
-			slider.setLocation(p);
 			Date d = xToDate ((int)p.getX());
-			trip.setTripStartTime(d);
-			startTimeSpinner.setValue(d);
+			Calendar c = Calendar.getInstance();
+			c.setTime(d);
+			if (c.get(Calendar.MINUTE) % 15 == 0) {
+				trip.setTripStartTime(d);
+				startTimeSpinner.setValue(d);
+				slider.setLocation(p);
+			}
 		}
 	}
 

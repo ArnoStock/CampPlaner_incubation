@@ -1,5 +1,6 @@
 package tripDB;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
@@ -13,14 +14,10 @@ import riverDB.River;
 @SuppressWarnings("serial")
 public class TripTimeLabelComponent extends JPanel {
 
-//	private Trip trip;
-
 	public TripTimeLabelComponent (Trip trip) {
 		super (new FlowLayout (FlowLayout.LEADING));
 		
-		JPanel labelPanel = new JPanel (new GridLayout (2, 1));
-		
-//		this.trip = trip;
+		JPanel labelPanel = new JPanel (new GridLayout (2,1));
 		
 		River r = trip.getRiver();
 		String riverName;
@@ -34,11 +31,8 @@ public class TripTimeLabelComponent extends JPanel {
 		addLabelWithBorder (labelPanel, riverName);
 
 		Border raisedbevel = BorderFactory.createRaisedBevelBorder();
-//		Border loweredbevel = BorderFactory.createLoweredBevelBorder();
-//		Border compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
-		labelPanel.setBorder(raisedbevel);
-		add (labelPanel);
-		add (new TripTimeIndicatorComponent(trip));
+		this.setBorder(raisedbevel);
+		add (labelPanel, BorderLayout.CENTER);
 	}
 	
 	private void addLabelWithBorder (JPanel p, String s) {

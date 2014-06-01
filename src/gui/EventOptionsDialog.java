@@ -33,12 +33,10 @@ public class EventOptionsDialog extends JDialog implements ActionListener, Chang
 	String region;
 	Calendar eventStart;
 	Calendar eventEnd;
-	SetupData setupData;
 	
-	public EventOptionsDialog(Frame mainFrame, SetupData setupData) {
+	public EventOptionsDialog(Frame mainFrame) {
 		super(mainFrame, "Veranstaltungsoptionen", true);
 		modalResult = true;
-		this.setupData= setupData;
 		eventStart = Calendar.getInstance();
 		eventEnd = Calendar.getInstance();
 		
@@ -96,13 +94,13 @@ public class EventOptionsDialog extends JDialog implements ActionListener, Chang
 	public void setVisible(boolean state) {
 		
 		if (state) {
-			eventStart.setTime(setupData.getEventStartDate());
+			eventStart.setTime(MainWindow.setupData.getEventStartDate());
 			startDatePicker.getModel().setDate(	eventStart.get(Calendar.YEAR), 
 												eventStart.get(Calendar.MONTH), 
 												eventStart.get(Calendar.DATE));
 			startDatePicker.getModel().setSelected(true);
 			
-			eventEnd.setTime(setupData.getEventEndDate());
+			eventEnd.setTime(MainWindow.setupData.getEventEndDate());
 			endDatePicker.getModel().setDate(	eventEnd.get(Calendar.YEAR), 
 												eventEnd.get(Calendar.MONTH), 
 												eventEnd.get(Calendar.DATE));
@@ -116,8 +114,8 @@ public class EventOptionsDialog extends JDialog implements ActionListener, Chang
 		
 		if ((event.getSource().equals(btnOk)) || (event.getSource().equals(btnCancel))) {
 	    	modalResult = (event.getActionCommand().equals("ok"));
-	    	setupData.setEventStartDate(eventStart.getTime());
-	    	setupData.setEventEndDate(eventEnd.getTime());
+	    	MainWindow.setupData.setEventStartDate(eventStart.getTime());
+	    	MainWindow.setupData.setEventEndDate(eventEnd.getTime());
 	    	setVisible(false);
 		}
 	}

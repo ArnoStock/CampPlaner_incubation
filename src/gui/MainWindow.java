@@ -34,6 +34,7 @@ import tripDB.TripDBPanel;
 
 public class MainWindow extends JFrame {
 
+	public static final String versionString = "V0.3";
 	public static RiverDB riverDB;
 	public static RosterDB rosterDB;
 	public static TripDB tripDB;
@@ -63,7 +64,7 @@ public class MainWindow extends JFrame {
     }
     
     public MainWindow () {
-        setTitle("Camp Planer V0.2");
+        setTitle("Camp Planer " + versionString);
         setSize(800, 600);
 	    setMinimumSize(new Dimension(500, 300));
 
@@ -76,8 +77,8 @@ public class MainWindow extends JFrame {
 			System.out.println (e);
 	        setupData = new SetupData ();
 		}
-        eventOptionsDialog = new EventOptionsDialog (this, setupData);
-        computerOptionsDialog = new ComputerOptionsDialog(this, setupData);
+        eventOptionsDialog = new EventOptionsDialog (this);
+        computerOptionsDialog = new ComputerOptionsDialog(this);
         createMenuBar ();
 
         // Create JTabbedPane object
@@ -215,8 +216,6 @@ public class MainWindow extends JFrame {
 	  	
 	  	if (cmdString == "ImportRivers") {
 	  		
-//	  		if (isDataChanged ())
-//	  			return;
 			FileNameExtensionFilter filter = new FileNameExtensionFilter(
 			        "comma separated values", "csv");
 			fc.setFileFilter(filter);
@@ -273,17 +272,16 @@ public class MainWindow extends JFrame {
 	  	}
     	
 	  	if (cmdString == "SetupComputer") {
-	  		computerOptionsDialog.setSetupData(setupData); // FIXME: set cloned object
+//	  		computerOptionsDialog.setSetupData(setupData); // FIXME: set cloned object
 	 		computerOptionsDialog.setVisible(true);
 	 		if (computerOptionsDialog.getModalResult()) {
-	 			setupData = computerOptionsDialog.getSetupData();	// FIXME: inform other windows
+//	 			setupData = computerOptionsDialog.getSetupData();
 	 		}
 	  	}
 		
 	  	if (cmdString == "About") {
 	  		aboutDialog.setVisible(true);
 	  	}
-		
 	}
 
     protected void processWindowEvent(WindowEvent e) {
@@ -301,11 +299,12 @@ public class MainWindow extends JFrame {
     	    
     		try {
 				setupData.write(SETUP_FILE_NAME);
+				System.out.println ("Setup information written to " + SETUP_FILE_NAME + ".");
 			} catch (Exception exception) {
 				System.out.println ("Could not save setup information to file " + SETUP_FILE_NAME + ".");
 				exception.printStackTrace();
 			}
-	        dispose(); // nicht unbedingt n�tig.
+	        dispose();
     	    System.exit(0);
     	}
     	super.processWindowEvent(e);

@@ -91,6 +91,8 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	private JButton detailsRosterRemoveBtn;
 	private JTextArea detailsCommentText;
 	private JSpinner detailsStartTimeSpinner;
+	private JButton nextDayButton;
+	private JButton prevDayButton;
 	
 	private JPanel panelStartTime;
 	private PrintOutPanel panelPreview;
@@ -111,6 +113,14 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 
 	    headerPanel = new JPanel ( new BorderLayout ());
 
+//	    prevDayButton = new JButton ("<");
+//	    nextDayButton = new JButton (">");
+	    prevDayButton = new JButton (MainWindow.getImageIcon("toolbarButtonGraphics/navigation/Back16.gif"));
+	    nextDayButton = new JButton (MainWindow.getImageIcon("toolbarButtonGraphics/navigation/Forward16.gif"));
+	    prevDayButton.addActionListener(this);
+	    nextDayButton.addActionListener(this);
+	    
+	    
 	    JPanel datePickerPanel = new JPanel();
 		new JDateComponentFactory();
 		targetDayPicker = JDateComponentFactory.createJDatePicker();
@@ -121,7 +131,10 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 											targetDay.get(Calendar.MONTH), 
 											targetDay.get(Calendar.DATE));
 		targetDayPicker.getModel().setSelected(true);
+
+		datePickerPanel.add(prevDayButton);
 		datePickerPanel.add ((Component)targetDayPicker);
+		datePickerPanel.add(nextDayButton);
 		datePickerPanel.setBorder(BorderFactory.createLoweredBevelBorder());
 		headerPanel.add(datePickerPanel, BorderLayout.WEST); 
 		
@@ -168,7 +181,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    rosterListModel = new DefaultListModel<RosterComponent>();  
 	    // create trip list in left panel
 	    rosterList = new JList<RosterComponent> (rosterListModel);
-	    rosterList.setCellRenderer(new RosterListRenderer(targetDay.getTime()));
+	    rosterList.setCellRenderer(new RosterListRenderer(targetDay));
 	    updateRosterList ();
 	    panelRosters.add (new JScrollPane(rosterList), BorderLayout.CENTER);
 	    rosterList.setDragEnabled(true);
@@ -385,7 +398,23 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			TripComponent t = tripList.getSelectedValue();
 			if (t == null)
 				return;
-			t.getTrip().setTripStartTime((Date) detailsStartTimeSpinner.getValue());
+			Date d = (Date)detailsStartTimeSpinner.getValue();
+			
+			Calendar c = Calendar.getInstance();
+			c.setTime(d);
+			int m = c.get(Calendar.MINUTE);
+			if (m % 15 != 0) {
+				if (m%15 > 8) {
+					m -= m%15;
+				}
+				else {
+					m += 15 - m%15;
+				}
+				c.set(Calendar.MINUTE, m);
+			}
+			
+			t.getTrip().setTripStartTime(c.getTime());
+			detailsStartTimeSpinner.setValue (c.getTime());
 			return;			
 		}
 		
@@ -447,6 +476,14 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			tripList.repaint();
 			tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 			return;
+		}
+		
+		if (evt.getSource().equals(prevDayButton)) {
+			targetDayPicker.getModel().addDay(-1);
+		}
+
+		if (evt.getSource().equals(nextDayButton)) {
+			targetDayPicker.getModel().addDay(1);
 		}
 		
 		if (evt.getActionCommand().contentEquals("Add")) {
@@ -539,8 +576,8 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			if (!selectedTrips.isEmpty()){
 				
 		   		if ( JOptionPane.showConfirmDialog(null,
-		    			"Sollen die ausgewählten Gruppen gelöscht werden?",
-						"Gruppen löschen?", 
+		    			"Sollen die ausgew\u00e4hlten Gruppen gel\u00f6scht werden?",
+						"Gruppen l\u00f6schen?", 
 						JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION ) {
 							return;
 				}
@@ -693,11 +730,18 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	public void updateTimePanel () {
 		
 		panelStartTime.removeAll();
-//TODO: THis must be a 2 column grid for equal lable sizes!
-		JPanel tripComponentPanel = new JPanel (new GridLayout (tripListModel.getSize(), 1));
+		JPanel tripComponentPanel = new JPanel (new GridBagLayout ());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
 		for (Object o: tripListModel.toArray()) {
 			TripComponent tc = (TripComponent) o;
-			tripComponentPanel.add (new TripTimeLabelComponent (tc.getTrip()));
+			tripComponentPanel.add (new TripTimeLabelComponent (tc.getTrip()), c);
+			c.gridx = 1;
+			tripComponentPanel.add (new TripTimeIndicatorComponent (tc.getTrip()),c);
+			c.gridy += 1;
+			c.gridx = 0;
 		}
 		panelStartTime.add(tripComponentPanel);
 	}

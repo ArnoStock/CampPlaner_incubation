@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -151,6 +152,7 @@ public class RiverDB implements PropertyChangeListener {
 		River nr = new River (r, this);
 		rivers.add (nr);
 		riverChangeSupport.firePropertyChange("addedRiver", true, false);
+    	isDataChanged = true;
 		return nr;
 	}
 	
@@ -159,6 +161,7 @@ public class RiverDB implements PropertyChangeListener {
 		River nr = new River (this);
 		rivers.add (nr);
 		riverChangeSupport.firePropertyChange("addedRiver", true, false);
+    	isDataChanged = true;
 		return nr;
 	}
 	
@@ -244,7 +247,13 @@ public class RiverDB implements PropertyChangeListener {
 		return true;
 	}
 
-
+	public void sort () {
+		Collections.sort(rivers);
+		isDataChanged = true;
+		riverChangeSupport.firePropertyChange("sortedRivers", true, false);
+	}
+	
+	
 	public void setIsDataChanged(boolean b) {
 		isDataChanged = b;
 		riverChangeSupport.firePropertyChange("loadedRivers", true, false);

@@ -5,13 +5,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -32,7 +30,7 @@ public class About extends JDialog implements ActionListener {
 		JPanel p = new JPanel (new FlowLayout ());
 		
 		p = new JPanel (new FlowLayout ());
-		p.add (new JLabel ("Camp Planer V0.2"));
+		p.add (new JLabel ("Camp Planer " + MainWindow.versionString));
 		add (p, BorderLayout.NORTH);
 
 		String s = "Fehler!";
@@ -49,6 +47,7 @@ public class About extends JDialog implements ActionListener {
 			else {
 				FileReader r = new FileReader ("text/About.txt");
 				r.read(c);
+				r.close();
 				s = new String (c);
 			}
 

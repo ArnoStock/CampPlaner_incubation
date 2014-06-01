@@ -5,7 +5,7 @@ import gui.MainWindow;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.util.Date;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -17,14 +17,14 @@ import javax.swing.ListCellRenderer;
 public class RosterListRenderer extends JPanel implements ListCellRenderer<RosterComponent> {
 
 	private JLabel rosterLabel;
-	private Date d;
+	private Calendar c;
 	
-	public RosterListRenderer (Date d) {
+	public RosterListRenderer (Calendar targetDay) {
 		super (new FlowLayout (FlowLayout.LEADING));
 
 		rosterLabel = new JLabel ();
 		add (rosterLabel);
-		this.d = d;
+		this.c = targetDay;
 		setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 	}
 	
@@ -33,7 +33,8 @@ public class RosterListRenderer extends JPanel implements ListCellRenderer<Roste
 	public Component getListCellRendererComponent(JList<? extends RosterComponent> list,
 			RosterComponent value, int index, boolean isSelected, boolean cellHasFocus) {
 
-		Integer cnt = MainWindow.tripDB.getRosterAssignmentCount(d, value.getRoster());
+		Integer cnt = MainWindow.tripDB.getRosterAssignmentCount(c.getTime(), value.getRoster());
+
 		Color col = Color.BLACK;
 		if (value.getRoster().getIsAspirant()) {
 			col = Color.BLUE;

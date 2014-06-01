@@ -40,7 +40,7 @@ public class RiverListTransferHandler extends TransferHandler {
                     Component component = support.getComponent();
                     if (component instanceof JList) {
 //                        ((JList)component).setText(((ListItem)value).getText());
-                    	System.out.println (value);
+//                    	System.out.println (value);
                     	tripDBPanel.dropRiver ((River)value, support.getDropLocation());
                     }
                 }

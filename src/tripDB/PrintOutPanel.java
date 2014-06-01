@@ -27,6 +27,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import printOut.PrintPanelSummary;
 import printOut.TripsPreviewFrame;
 import printOut.PrintPanel;
 
@@ -126,25 +127,25 @@ public class PrintOutPanel extends JPanel implements ActionListener {
 		    			"Dateifehler",
 						JOptionPane.OK_OPTION);
 			}
-			PrintPanel previewPanel = new PrintPanel (formSheet, targetDay.getTime(), MainWindow.setupData.getPrintElementSetupList(),
-					MainWindow.setupData.getPrintOnFormSheet());
+			PrintPanel previewPanel = new PrintPanel (formSheet, targetDay.getTime());
 			
 //			PreviewFrame preview = new PreviewFrame ((Frame) SwingUtilities.getRoot(this), testLabel.getPrintable(new MessageFormat("Capitals"), new MessageFormat("{0}")), printerJob.getPageFormat(printAttributes));
 			PageFormat pf = printerJob.getPageFormat(printAttributes); 
 			Paper p = pf.getPaper();
 			p.setImageableArea(0, 0, p.getWidth(), p.getHeight());
 			pf.setPaper(p);
-			new TripsPreviewFrame ((Frame) SwingUtilities.getRoot(this), previewPanel, pf);
+			new TripsPreviewFrame ((Frame) SwingUtilities.getRoot(this), previewPanel, pf, true);
 			
 		}
 
 		if (evt.getActionCommand().equals("PreviewSummary")) {
-//			printerJob.pageDialog(printAttributes);
-//			printerJob.printDialog(printAttributes);
-	    	JOptionPane.showMessageDialog(null,
-					"Diese Funktion ist momentan noch nicht verf\u00fcgbar.", 
-	    			"Bitte etwas Geduld...",
-					JOptionPane.OK_OPTION);
+			PrintPanelSummary previewPanel = new PrintPanelSummary (targetDay.getTime());
+		
+			PageFormat pf = printerJob.getPageFormat(printAttributes); 
+			Paper p = pf.getPaper();
+			p.setImageableArea(0, 0, p.getWidth(), p.getHeight());
+			pf.setPaper(p);
+			new TripsPreviewFrame ((Frame) SwingUtilities.getRoot(this), previewPanel, pf, false);
 		}
 		
 	}

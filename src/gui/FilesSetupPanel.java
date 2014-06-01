@@ -26,15 +26,10 @@ public class FilesSetupPanel extends JPanel implements ActionListener, FocusList
 	JTextField dataFileFileNameLabel = new JTextField();
 	JButton chooseDataFileNameButton = new JButton ("\u00c4ndern ...");
 	JButton choosetripFormFileNameButton = new JButton ("\u00c4ndern ...");
-	SetupData setupData;
 	
-	
-	
-	public FilesSetupPanel (SetupData setupData) {
+	public FilesSetupPanel () {
 		
 		super (new BorderLayout());
-		
-		this.setupData= setupData;
 		
 		add (new JLabel ("Dateinamen und Pfade"), BorderLayout.NORTH);
 		
@@ -51,7 +46,7 @@ public class FilesSetupPanel extends JPanel implements ActionListener, FocusList
 		c.gridx = 0;
 		c.gridy += 1;
 		cp.add (dataFileFileNameLabel, c);
-		dataFileFileNameLabel.setText(setupData.getDataFileName());
+		dataFileFileNameLabel.setText(MainWindow.setupData.getDataFileName());
 		c.fill = GridBagConstraints.NONE;
 		c.gridx += 1;
 		cp.add (chooseDataFileNameButton, c);
@@ -66,7 +61,7 @@ public class FilesSetupPanel extends JPanel implements ActionListener, FocusList
 		c.gridx = 0;
 		c.gridy += 1;
 		cp.add (tripFormFileNameLabel, c);
-		tripFormFileNameLabel.setText(setupData.getFormFileName());
+		tripFormFileNameLabel.setText(MainWindow.setupData.getFormFileName());
 		c.fill = GridBagConstraints.NONE;
 		c.gridx += 1;
 		cp.add (choosetripFormFileNameButton, c);
@@ -93,8 +88,8 @@ public class FilesSetupPanel extends JPanel implements ActionListener, FocusList
 			    fc.setFileFilter(filter);
 			    int returnVal = fc.showOpenDialog(this);
 			    if(returnVal == JFileChooser.APPROVE_OPTION) {
-			       setupData.setDataFileName (fc.getSelectedFile().getAbsolutePath());
-			       dataFileFileNameLabel.setText(setupData.getDataFileName());			    }
+			    	MainWindow.setupData.setDataFileName (fc.getSelectedFile().getAbsolutePath());
+			       dataFileFileNameLabel.setText(MainWindow.setupData.getDataFileName());			    }
 		}
 
 		
@@ -105,8 +100,8 @@ public class FilesSetupPanel extends JPanel implements ActionListener, FocusList
 			    fc.setFileFilter(filter);
 			    int returnVal = fc.showOpenDialog(this);
 			    if(returnVal == JFileChooser.APPROVE_OPTION) {
-			       setupData.setFormFileName (fc.getSelectedFile().getAbsolutePath());
-			       tripFormFileNameLabel.setText(setupData.getFormFileName());
+			    	MainWindow.setupData.setFormFileName (fc.getSelectedFile().getAbsolutePath());
+			       tripFormFileNameLabel.setText(MainWindow.setupData.getFormFileName());
 			    }
 		}
 		
@@ -116,11 +111,11 @@ public class FilesSetupPanel extends JPanel implements ActionListener, FocusList
 	public void focusLost(FocusEvent evt) {
 		
 		if (evt.getSource().equals(tripFormFileNameLabel)) {
-			setupData.setFormFileName (tripFormFileNameLabel.getText());
+			MainWindow.setupData.setFormFileName (tripFormFileNameLabel.getText());
 		}
 		
 		if (evt.getSource().equals(dataFileFileNameLabel)) {
-			setupData.setFormFileName (dataFileFileNameLabel.getText());
+			MainWindow.setupData.setFormFileName (dataFileFileNameLabel.getText());
 		}
 	}
 

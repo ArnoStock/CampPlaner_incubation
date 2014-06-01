@@ -15,7 +15,7 @@ import org.simpleframework.xml.Root;
 
 @SuppressWarnings("serial")
 @Root(name="Roster")
-public class Roster extends Component {
+public class Roster extends Component implements Comparable<Roster>{
 
     private final PropertyChangeSupport rosterChangeSupport = new PropertyChangeSupport(this);
 
@@ -220,6 +220,14 @@ public class Roster extends Component {
 	public String getFullName() {
 		// TODO Auto-generated method stub
 		return givenName + " " + familyName;
+	}
+
+	@Override
+	public int compareTo(Roster r) {
+		String mySortString = familyName + givenName + getRosterID();
+		String otherSortString = r.familyName + r.givenName + r.getRosterID();
+		
+		return mySortString.compareTo(otherSortString);
 	}
 
 }

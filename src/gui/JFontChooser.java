@@ -199,7 +199,8 @@ public class JFontChooser extends JComponent
         return fontSizeTextField;
     }
 
-    public JList getFontFamilyList()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public JList getFontFamilyList()
     {
         if (fontNameList == null)
         {
@@ -214,7 +215,8 @@ public class JFontChooser extends JComponent
         return fontNameList;
     }
 
-    public JList getFontStyleList()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public JList getFontStyleList()
     {
         if (fontStyleList == null)
         {
@@ -229,7 +231,8 @@ public class JFontChooser extends JComponent
         return fontStyleList;
     }
 
-    public JList getFontSizeList()
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public JList getFontSizeList()
     {
         if (fontSizeList == null)
         {
@@ -436,7 +439,8 @@ public class JFontChooser extends JComponent
             this.textComponent = textComponent;
         }
 
-        public void valueChanged(ListSelectionEvent e)
+        @SuppressWarnings("rawtypes")
+		public void valueChanged(ListSelectionEvent e)
         {
             if (e.getValueIsAdjusting() == false)
             {
@@ -478,9 +482,10 @@ public class JFontChooser extends JComponent
 
     protected class TextFieldKeyHandlerForListSelectionUpDown extends KeyAdapter
     {
-        private JList targetList;
+        @SuppressWarnings("rawtypes")
+		private JList targetList;
 
-        public TextFieldKeyHandlerForListSelectionUpDown(JList list)
+        public TextFieldKeyHandlerForListSelectionUpDown(@SuppressWarnings("rawtypes") JList list)
         {
             this.targetList = list;
         }
@@ -515,9 +520,10 @@ public class JFontChooser extends JComponent
 
     protected class ListSearchTextFieldDocumentHandler implements DocumentListener
     {
-        JList targetList;
+        @SuppressWarnings("rawtypes")
+		JList targetList;
 
-        public ListSearchTextFieldDocumentHandler(JList targetList)
+        public ListSearchTextFieldDocumentHandler(@SuppressWarnings("rawtypes") JList targetList)
         {
             this.targetList = targetList;
         }

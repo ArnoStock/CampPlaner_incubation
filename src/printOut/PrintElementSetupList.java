@@ -5,8 +5,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import javax.swing.UIManager;
-
 import org.simpleframework.xml.ElementList;
 
 public class PrintElementSetupList {
@@ -31,11 +29,13 @@ public class PrintElementSetupList {
 	public final static int PARA_XOUT_PARTICIPANTS_1 = 17;
 	public final static int PARA_XOUT_PARTICIPANTS_2 = 18;
 
-	public final static int PARA_COUNT = 19;
+	public final static int FONT_SUMMARY_SHEET = 19;
+
+	public final static int PARA_COUNT = 20;
 	
 	private final String PARA_NAMES[] = { "Gruppennummer", "Gruppengr\u00f6\u00dfe", "Wochentag", "Datum", "WW Einstufung", 
 			"Kanutour", "Schulung", "Flussname", "Start", "Ziel", "Flussl\u00e4nge", "Anfahrt", "Zeit", "Bemerkung",
-			"Auto 1", "Auto 2", "Auto 3", "Teilnehmer Start", "Teilnehmer Ende" };
+			"Auto 1", "Auto 2", "Auto 3", "Teilnehmer Start", "Teilnehmer Ende", "Zusammenfassung" };
 
 	
 	@ElementList(name="PrintElementSetup")
@@ -43,7 +43,6 @@ public class PrintElementSetupList {
 
 	public PrintElementSetupList () {
 		printElements = new ArrayList<PrintElementSetup>();
-		setDefaultPrintElementConfiguration ((Font) UIManager.getDefaults().get("TextField.font"));
 	}
 	
 	public PrintElementSetupList (Font defaultFont) {
@@ -54,7 +53,6 @@ public class PrintElementSetupList {
 			printElements.add(new PrintElementSetup (defaultFont, new Point (0,0), Color.black));
 		}
 		setDefaultPrintElementConfiguration (defaultFont);
-		
 	}
 	
 	public PrintElementSetup getPrintElementSetup (int index) {
@@ -120,6 +118,7 @@ public class PrintElementSetupList {
 		printElements.get(PARA_XOUT_CAR_3).setAnchorPoint(new Point (50, 625));
 		printElements.get(PARA_XOUT_PARTICIPANTS_1).setAnchorPoint(new Point (320, 415));
 		printElements.get(PARA_XOUT_PARTICIPANTS_2).setAnchorPoint(new Point (560, 730));
+		printElements.get(FONT_SUMMARY_SHEET).setAnchorPoint(new Point (45, 25));
 		
 	}
 	

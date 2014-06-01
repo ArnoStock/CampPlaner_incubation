@@ -272,6 +272,10 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 			selRoster.setGivenName (givenNameField.getText());
 			selRoster.setPhoneNumber(phoneNumberField.getText());
 			selRoster.setIsAspirant(isAspirantCheckBox.getState());
+			// sort roster list
+			MainWindow.rosterDB.sort();
+			// refresh roster list
+			refreshList();
 		}
 	}
 
@@ -314,12 +318,11 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		if (evt.getSource().equals(newButton)) {
 			
 			refreshEditDataFrom(MainWindow.rosterDB.newRoster ());
-
 			setEditFieldIsEditable(true);
 			rosterTable.setEnabled(false);
 			setButtonMode(1);
-			rosterTable.setRowSelectionInterval(rosterTable.getRowCount()-1, rosterTable.getRowCount()-1);
 			rosterTableModel.fireTableDataChanged();
+			rosterTable.setRowSelectionInterval(rosterTable.getRowCount()-1, rosterTable.getRowCount()-1);
 		}
 
 		if (evt.getSource().equals(editButton)) {
@@ -348,8 +351,8 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 					}
 					else {
 			    		if ( JOptionPane.showConfirmDialog(null,
-								"Soll Fahrtenleiter " + selRoster.getFullName() + " wirklich gelöscht werden?",
-								"Fahrtenleiter löschen?", 
+								"Soll Fahrtenleiter " + selRoster.getFullName() + " wirklich gel\u00f6scht werden?",
+								"Fahrtenleiter l\u00f6schen?", 
 								JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION ) {
 			    			
 								MainWindow.rosterDB.deleteRoster(selRoster);

@@ -8,7 +8,7 @@ import org.simpleframework.xml.Root;
  
 @SuppressWarnings("serial")
 @Root(name="River")
-public class River extends Component {
+public class River extends Component implements Comparable<River> {
 
     private final PropertyChangeSupport riverChangeSupport = new PropertyChangeSupport(this);
 	
@@ -21,10 +21,12 @@ public class River extends Component {
 		wwTopLevel = 1;
 		tripLength = 0;
 		distanceToStart = 0;
+		riverInfo = "";
 		minWaterLevel = 0;
 		maxWaterLevel = 0;
 		unitOfWaterLevel = "cm";
 		defaultGroupSize = 1;
+		country = "";
 	}
 
 	public River (PropertyChangeListener parent, String riverName, String tripFrom, String tripTo,
@@ -59,6 +61,8 @@ public class River extends Component {
 		distanceToStart = 0;
 		minWaterLevel = 0;
 		maxWaterLevel = 0;
+		riverInfo = "";
+		country = "";
 		unitOfWaterLevel = "cm";
 		defaultGroupSize = 6;
 		riverChangeSupport.addPropertyChangeListener(parent);
@@ -349,5 +353,14 @@ public class River extends Component {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         this.riverChangeSupport.removePropertyChangeListener(listener);
     }
+
+	@Override
+	public int compareTo(River r) {
+		
+		String mySortString = riverName + tripFrom + tripTo;
+		String otherSortString = r.riverName + r.tripFrom + r.tripTo;
+		
+		return mySortString.compareTo(otherSortString);
+	}
 
 }

@@ -20,21 +20,19 @@ import printOut.PrintElementSetupList;
 @SuppressWarnings("serial")
 public class PrintElementSetupPanel extends JPanel implements ActionListener {
 	
-	SetupData setupData;
 	JPanel componentPanel;
 	
-	public PrintElementSetupPanel (SetupData setupData) {
+	public PrintElementSetupPanel () {
 		
 		super (new BorderLayout());
 		
-		this.setupData = setupData;
 		add (new JLabel ("Formularelemente"), BorderLayout.NORTH);
 		
 		componentPanel = new JPanel (new GridLayout (0, 1));
 		
 		for (int i = 0; i < PrintElementSetupList.PARA_COUNT; i++) {
-			componentPanel.add(new PrintElementPanel(setupData.getPrintElementSetupList().getPrintElementSetup(i), 
-											setupData.getPrintElementSetupList().getElementName(i), i));
+			componentPanel.add(new PrintElementPanel(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup(i), 
+					MainWindow.setupData.getPrintElementSetupList().getElementName(i), i));
 		}
 
 		JScrollPane sp = new JScrollPane(componentPanel);
@@ -53,10 +51,10 @@ public class PrintElementSetupPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getActionCommand().equals("SetDefault")) {
-			 setupData.getPrintElementSetupList().setDefaultPrintElementConfiguration ((Font) UIManager.getDefaults().get("TextField.font"));
+			MainWindow.setupData.getPrintElementSetupList().setDefaultPrintElementConfiguration ((Font) UIManager.getDefaults().get("TextField.font"));
 			 for (Component c: componentPanel.getComponents()) {
 				 if (c instanceof PrintElementPanel) {
-					 ((PrintElementPanel) c).updateSetupData(setupData.getPrintElementSetupList().getPrintElementSetup(((PrintElementPanel) c).getIndex()));
+					 ((PrintElementPanel) c).updateSetupData(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup(((PrintElementPanel) c).getIndex()));
 				 }
 			 }
 			 invalidate ();

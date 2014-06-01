@@ -144,7 +144,6 @@ public class TripDB {
 		Integer rc = 0;
 		
 		for (Trip t: getAllTrips(d)) {
-			
 			for (Roster tr: t.getRosterList()) {
 				if (( tr.getFamilyName().equals(r.getFamilyName()) ) &&
 					( tr.getGivenName().equals(r.getGivenName()))){
@@ -152,7 +151,6 @@ public class TripDB {
 				}
 			}
 		}
-		
 		return rc;
 		
 	}
@@ -280,4 +278,8 @@ public class TripDB {
 		return false;
 	}
 	
+	public void tripDataChanged () {
+		isDataChanged = true;
+	}
+
 }

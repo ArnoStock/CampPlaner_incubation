@@ -20,19 +20,16 @@ public class ComputerOptionsDialog extends JDialog implements ActionListener {
 	JButton btnOk;
 	JButton btnCancel;
 	
-	SetupData setupData;
-	
-	public ComputerOptionsDialog(Frame mainFrame, SetupData setupData) {
+	public ComputerOptionsDialog(Frame mainFrame) {
 		super(mainFrame, "Computeroptionen", true);
 		modalResult = true;
-		this.setupData= setupData;
 		
         JTabbedPane tabpane = new JTabbedPane
                 (JTabbedPane.TOP,JTabbedPane.SCROLL_TAB_LAYOUT );
 		
-        JPanel filesPanel = new FilesSetupPanel(setupData);
+        JPanel filesPanel = new FilesSetupPanel();
         tabpane.add ("Dateien", filesPanel);
-        JPanel printSetupPanel = new PrintElementSetupPanel (setupData);
+        JPanel printSetupPanel = new PrintElementSetupPanel ();
         tabpane.add ("Formular", printSetupPanel);
 
 		add (tabpane);
@@ -66,14 +63,6 @@ public class ComputerOptionsDialog extends JDialog implements ActionListener {
         }
     }
     
-    public void setSetupData (SetupData setupData) {
-    	this.setupData= setupData; 
-    }
-    
-    public SetupData getSetupData () {
-    	return setupData;
-    }
-
 	@Override
 	public void setVisible(boolean state) {
 		
