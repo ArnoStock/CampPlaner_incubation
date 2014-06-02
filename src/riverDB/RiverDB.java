@@ -179,13 +179,13 @@ public class RiverDB implements PropertyChangeListener {
 			
 			try {
 				while(lcsvp.getLine() != null){
-
+/*
 					System.out.println(
 					        "Parse Fluss: " + lcsvp.getValueByLabel("Fluss") +
 					        " Start: " + lcsvp.getValueByLabel("Einstieg") +
 					        " Ziel: " + lcsvp.getValueByLabel("Ausstieg")
 					    );
-
+*/
 					
 					riverDB.add (lcsvp.getValueByLabel("Fluss"), lcsvp.getValueByLabel("Einstieg"), lcsvp.getValueByLabel("Ausstieg"), 
 							lcsvp.getValueByLabel("WW"), Integer.parseInt(lcsvp.getValueByLabel("WW Stufe")), 
@@ -210,7 +210,7 @@ public class RiverDB implements PropertyChangeListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-			 
+		riverDB.sort();
 		return riverDB;
 	}
 	

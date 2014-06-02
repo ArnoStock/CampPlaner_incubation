@@ -367,7 +367,6 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	}
 	
 	private void updateRosterList() {
-
 		availableRosters = 0;
 		if ((rosterListModel == null) || (MainWindow.rosterDB == null))
 			return;

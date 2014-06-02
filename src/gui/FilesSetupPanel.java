@@ -115,7 +115,7 @@ public class FilesSetupPanel extends JPanel implements ActionListener, FocusList
 		}
 		
 		if (evt.getSource().equals(dataFileFileNameLabel)) {
-			MainWindow.setupData.setFormFileName (dataFileFileNameLabel.getText());
+			MainWindow.setupData.setDataFileName (dataFileFileNameLabel.getText());
 		}
 	}
 

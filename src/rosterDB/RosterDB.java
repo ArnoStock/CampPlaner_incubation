@@ -166,25 +166,24 @@ public class RosterDB implements PropertyChangeListener {
 	public static RosterDB readCSV (String fName) {
 		
 		RosterDB rosterDB = new RosterDB ();
-	
 		
 		LabeledCSVParser lcsvp = null;
 		try {
 			lcsvp = new LabeledCSVParser(
 				    new CSVParser(
-				    		new FileReader( fName )		            
+				    	new FileReader( fName )		            
 				    )
 				);
 			
 			try {
 				while(lcsvp.getLine() != null){
 
-					System.out.println(
+/*					System.out.println(
 					        "Parse Nachname: " + lcsvp.getValueByLabel("Name") +
 					        " Vorname: " + lcsvp.getValueByLabel("Vorname") +
 					        " Handy: " + lcsvp.getValueByLabel("Handy")
 					    );
-
+*/
 					
 					rosterDB.add (	lcsvp.getValueByLabel("Name"), lcsvp.getValueByLabel("Vorname"), 
 									lcsvp.getValueByLabel("Handy"), Boolean.getBoolean(lcsvp.getValueByLabel("Aspirant")));
@@ -205,7 +204,7 @@ public class RosterDB implements PropertyChangeListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-			 
+		rosterDB.sort();
 		return rosterDB;
 	}
 

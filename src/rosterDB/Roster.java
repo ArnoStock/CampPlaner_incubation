@@ -154,8 +154,7 @@ public class Roster extends Component implements Comparable<Roster>{
 
 		Boolean oldIsAspirant = this.isAspirant;
 		this.isAspirant = isAspirant;
-		rosterChangeSupport.firePropertyChange("isAspirant", oldIsAspirant, isAspirant);
-		
+		rosterChangeSupport.firePropertyChange("isAspirant", oldIsAspirant, isAspirant);	
 	}
 
 	/**

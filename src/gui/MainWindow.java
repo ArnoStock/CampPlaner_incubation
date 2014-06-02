@@ -246,6 +246,7 @@ public class MainWindow extends JFrame {
 			int returnVal = fc.showDialog(this, "Fahrtenleiter importieren");
 			if(returnVal == JFileChooser.APPROVE_OPTION) {
 				rosterDB.addCSV (fc.getSelectedFile().getAbsolutePath(), RosterDB.READ_MODE_ADD);
+				rosterDB.addPropertyChangeListener(tripDBPanel);
 				rosterDBPanel.refreshList();
 			}
 	  		
