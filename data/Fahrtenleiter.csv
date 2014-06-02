@@ -1,0 +1,18 @@
+Name,Vorname,Handy,Aspirant
+Ahr,Arthur,+49 170 123 123 4,false
+Aller,Andrea,+49 170 123 123 5,false
+Butt,Bernd,+49 170 123 123 6,true
+Drau,Dieter,+49 170 123 123 7,false
+Eder,Eduard,+49 170 123 123 8,false
+Elbe,Elke,+49 170 123 123 9,true
+Inn,Iris,+49 170 123 123 10,false
+Isel,Ingolf,+49 170 123 123 11,false
+Lenne,Ludwig,+49 170 123 123 12,false
+Lippe,Linda,+49 170 123 123 13,false
+Malta,Monika,+49 170 123 123 14,true
+Mustermann,Max,+49 170 123 123 19,true
+Rhein,Rufus,+49 170 123 123 15,false
+Ruhr,Rudolf,+49 170 123 123 16,false
+Saale,Siegfried,+49 170 123 123 17,true
+Wenne,Wolfgang,+49 170 123 123 18,false
+Wilde,Hilde,+49 170 123 123 20,false
