@@ -17,7 +17,7 @@ import riverDB.River;
 import rosterDB.Roster;
 
 @Root(name="Trip")
-public class Trip {
+public class Trip implements Comparable<Trip>{
 	
 	public Trip (Date tripDate) {
 		super ();
@@ -27,7 +27,8 @@ public class Trip {
 		this.groupNumber = 0;
 		this.totalGroupSize = 2;
 		this.isEducation= false; 
-		this.driverCount = 1;
+		this.isKidsTour = false;
+		this.driverCount = 2;
 		this.comment = "";
 
 		SimpleDateFormat sdfWithDefaultYear = new SimpleDateFormat("HH:mm");
@@ -47,7 +48,8 @@ public class Trip {
 		this.groupNumber = 0;
 		this.totalGroupSize = 2;
 		this.isEducation= false; 
-		this.driverCount = 1;
+		this.isKidsTour = false;
+		this.driverCount = 2;
 		this.comment = "";
 
 		SimpleDateFormat sdfWithDefaultYear = new SimpleDateFormat("HH:mm");
@@ -56,6 +58,22 @@ public class Trip {
 		} catch (ParseException e) {
 			tripStartTime = new Date();
 		}
+	}
+
+
+	public Trip(Date tripDate, Trip tc) {
+
+		super ();
+		this.rosters = new ArrayList<Integer> ();
+		this.river = tc.getRiver();
+		this.tripDate = tripDate;
+		this.groupNumber = 0;
+		this.totalGroupSize = tc.getTotalGroupSize();
+		this.isEducation= tc.getIsEducation();
+		this.isKidsTour = tc.getIsKidsTour();
+		this.driverCount = tc.getDriverCount();
+		this.comment = tc.getComment();
+		tripStartTime = tc.getTripStartTime();
 	}
 
 
@@ -118,6 +136,10 @@ public class Trip {
 	@Attribute
 	boolean isEducation;
 
+	// driverCount is not included in the totalGroupSize
+	@Attribute (required = false)
+	boolean isKidsTour;
+
 	public River getRiver () {
 		return river;
 	}
@@ -140,6 +162,7 @@ public class Trip {
 	
 	public void setRiver (River river) {
 		this.river = river;
+		comment = river.getCommentUnchanged();
 		totalGroupSize = river.getDefaultGroupSize();
 		MainWindow.tripDB.tripDataChanged();
 	}
@@ -242,6 +265,15 @@ public class Trip {
 		this.isEducation= isEducation ;
 		MainWindow.tripDB.tripDataChanged();
 	}
+	
+	public boolean getIsKidsTour() {
+		return isKidsTour;
+	}
+
+	public void setIsKidsTour(boolean isKidsTour) {
+		this.isKidsTour = isKidsTour;
+		MainWindow.tripDB.tripDataChanged();
+	}
 
 	public List<Roster> getRosterList() {
 		ArrayList<Roster> tripRosters = new ArrayList<Roster> ();
@@ -269,6 +301,12 @@ public class Trip {
 	
 	public boolean isRosterAssigned (Integer id) {
 		return rosters.contains(id);
+	}
+
+	@Override
+	public int compareTo(Trip t) {
+		
+		return getGroupNumber() - t.getGroupNumber();
 	}
 
 

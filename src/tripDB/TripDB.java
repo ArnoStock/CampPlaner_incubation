@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -94,6 +95,14 @@ public class TripDB {
 		return t;
 	}
 	
+	public Trip add(Date date, Trip tc) {
+		Trip t = new Trip( date, tc);
+		trips.add(t);
+		isDataChanged = true;
+		return t;
+	}
+
+	
 	public void delete (Trip t) {
 		
 		if (t == null)
@@ -103,6 +112,7 @@ public class TripDB {
 	}
 
 	public boolean isDataChanged() {
+//System.out.println("Trip data changed!");
 		return isDataChanged;
 	}
 
@@ -124,6 +134,8 @@ public class TripDB {
 			if (refDate.equals(tDate))
 				tl.add(t);
 		}
+		// sort list by group-number
+		Collections.sort(tl);
 		return tl;
 	}
 	

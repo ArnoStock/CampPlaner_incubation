@@ -1,5 +1,7 @@
 package rosterDB;
 
+import gui.MainWindow;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -121,8 +123,10 @@ public class RosterDB implements PropertyChangeListener {
 	}
 
 	public boolean isDataChanged() {
+//System.out.println("Roster data changed!");
 		return isDataChanged;
 	}
+	
     public void addPropertyChangeListener(PropertyChangeListener listener) {
     	
         this.rosterChangeSupport.addPropertyChangeListener(listener);
@@ -236,6 +240,53 @@ public class RosterDB implements PropertyChangeListener {
 		
 		return true;
 	}
+	
+	public static boolean writeAssignmentCSV(RosterDB rosterDB, String absolutePath) {
+		// create output file
+        FileWriter outputStream = null;
+
+	    try {
+	    	outputStream = new FileWriter(absolutePath);
+	    	outputStream.write("Name,Vorname");
+	    	for (int i = 0; i <= MainWindow.setupData.getEventLength (); i++) {
+	    		outputStream.write(","+MainWindow.setupData.getDateAsString(i));
+	    	}
+	    	outputStream.write(",Teilnehmer,Aktiv,B\u00FCro,Urlaub\n");
+	    	for (Roster r: rosterDB.getRosters()) {
+		    	outputStream.write(	r.getFamilyName() + "," + r.getGivenName()); 
+		    	for (int i = 0; i <= MainWindow.setupData.getEventLength (); i++) {
+		    		RosterAvailability a = r.checkAvailability(MainWindow.setupData.getDateAt(i));
+		    		String s = "";
+		    		if (a != null)
+		    			s = a.toString();
+		    		outputStream.write(","+ s);
+		    	}
+		    	outputStream.write(","+r.getAvailabilityCount(RosterAvailability.ROSTER_PARTICIPATES));
+		    	int av = r.getAvailabilityCount(RosterAvailability.ROSTER_AVAILABLE) + 
+		    				r.getAvailabilityCount(RosterAvailability.ROSTER_OFFICE); 
+		    	outputStream.write(","+ av);
+		    	outputStream.write(","+r.getAvailabilityCount(RosterAvailability.ROSTER_OFFICE));
+		    	outputStream.write(","+r.getAvailabilityCount(RosterAvailability.ROSTER_VACATION));
+		    	outputStream.write("\n");
+	    	}
+	    	
+	    } catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+	    	if (outputStream != null) {
+	    		try {
+					outputStream.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	    	}
+	    }
+		
+		return true;
+	}
+
 	
 	public void setIsDataChanged(boolean b) {
 		isDataChanged = b;

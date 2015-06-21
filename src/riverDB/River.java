@@ -1,5 +1,8 @@
 package riverDB;
 
+import gui.MainWindow;
+
+import java.awt.Color;
 import java.awt.Component;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -27,11 +30,14 @@ public class River extends Component implements Comparable<River> {
 		unitOfWaterLevel = "cm";
 		defaultGroupSize = 1;
 		country = "";
+		comment = "";
+		isFavoured = true;
 	}
 
 	public River (PropertyChangeListener parent, String riverName, String tripFrom, String tripTo,
 					String wwLevel, int wwTopLevel, int tripLength, int distanceToStart, String country, 
-					String riverInfo, int minWaterLevel, int maxWaterLevel, String unitOfWaterLevel, Integer defaultGroupSize) {
+					String riverInfo, int minWaterLevel, int maxWaterLevel, String unitOfWaterLevel, 
+					Integer defaultGroupSize, String comment, boolean isFavoured) {
 		super ();
 		this.riverName = riverName;
 		this.tripFrom = tripFrom;
@@ -46,6 +52,8 @@ public class River extends Component implements Comparable<River> {
 		this.unitOfWaterLevel = unitOfWaterLevel;
 		this.country = country;
 		this.defaultGroupSize = defaultGroupSize;
+		this.comment = comment;
+		this.isFavoured = isFavoured;
 		riverChangeSupport.addPropertyChangeListener(parent);
 	}
 	
@@ -65,6 +73,8 @@ public class River extends Component implements Comparable<River> {
 		country = "";
 		unitOfWaterLevel = "cm";
 		defaultGroupSize = 6;
+		comment = "";
+		isFavoured = true;
 		riverChangeSupport.addPropertyChangeListener(parent);
 
 	}
@@ -80,10 +90,28 @@ public class River extends Component implements Comparable<River> {
 		distanceToStart = r.getDistanceToStart();
 		minWaterLevel = r.getMinWaterLevel();
 		maxWaterLevel = r.getMaxWaterLevel();
+		riverInfo = r.getRiverInfo();
+		country = r.getCountry();
 		unitOfWaterLevel = r.getUnitOfWaterLevel();
 		defaultGroupSize = r.getDefaultGroupSize();
 		riverChangeSupport.addPropertyChangeListener(parent);
+		comment = r.getCommentUnchanged();
+		isFavoured = r.getIsFavoured ();
 		
+	}
+
+	/**
+	 * @return the isFavoured
+	 */
+	public Boolean getIsFavoured() {
+		return isFavoured;
+	}
+
+	/**
+	 * @param isFavoured the isFavoured to set
+	 */
+	public void setIsFavoured(Boolean isFavoured) {
+		this.isFavoured = isFavoured;
 	}
 
 	@Attribute
@@ -105,14 +133,19 @@ public class River extends Component implements Comparable<River> {
     private String wwLevel;
 
     @Attribute
-    private int wwTopLevel;
+    private int wwTopLevel; // 1-6
  
     @Attribute
     private int tripLength;
 
     @Attribute
     private int distanceToStart;
+    
+    @Attribute (required = false)
+    private String comment;
 
+    @Attribute (required = false)
+    private Boolean isFavoured;
     /*
      * recommended min water level in unitOfWaterLevel
      */
@@ -341,9 +374,35 @@ public class River extends Component implements Comparable<River> {
 		riverChangeSupport.firePropertyChange("unitOfWaterLevel", oldUnitOfWaterLevel, unitOfWaterLevel);
 	}
 
+	/**
+	 * @return the comment
+	 */
+	public String getComment() {
+		return comment.replaceAll("&#xD;","\n");
+	}
+
+	/**
+	 * @return the comment without CR replacement
+	 */
+	public String getCommentUnchanged() {
+		return comment;
+	}
+
+	/**
+	 * @param comment the comment to set
+	 */
+	public void setComment(String comment) {
+		String oldComment = this.comment;
+		this.comment = comment.replaceAll("\n", "&#xD;");
+		riverChangeSupport.firePropertyChange("comment", oldComment, comment);
+	}
+	
 	@Override
 	public String toString () {
-		return riverName + " (" + tripFrom + " - " + tripTo + ") " + tripLength + "km WW" + wwLevel;
+		if (isFavoured)
+			return "(*) " + riverName + " (" + tripFrom + " - " + tripTo + ") " + tripLength + "km WW" + wwLevel;
+		else
+			return "( ) " + riverName + " (" + tripFrom + " - " + tripTo + ") " + tripLength + "km WW" + wwLevel;
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -362,5 +421,22 @@ public class River extends Component implements Comparable<River> {
 		
 		return mySortString.compareTo(otherSortString);
 	}
+	
+	public static Color getRiverColor (int wwTopLevel) {
+		
+			if (wwTopLevel == 2)
+				return Color.decode("0xC0FFC0");
+			if (wwTopLevel == 3)
+				return Color.decode("0x80FF80");
+			if (wwTopLevel == 4)
+				return Color.decode("0xFFFF60");
+			if (wwTopLevel == 5)
+				return Color.decode("0xFFA0A0");
+			if (wwTopLevel == 6)
+				return Color.decode("0xFF8080");
+	
+		return Color.WHITE;
+	}
+	
 
 }

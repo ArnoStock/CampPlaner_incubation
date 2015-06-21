@@ -67,7 +67,7 @@ public class TripComponent extends Component {
 		if (rcnt == 0)
 			return Color.RED;
 		if (rcnt > 1)
-			return Color.ORANGE;
+			return Color.decode ("0xF07000");
 		return Color.BLACK;
 	}
 

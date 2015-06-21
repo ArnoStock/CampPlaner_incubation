@@ -19,17 +19,20 @@ public class PrintElementSetup {
 	private Integer fontSize;
 	@Element
 	private Point anchorPoint;
+	@Attribute
+	Integer fieldWidth;
 
 	private Color printColor;
 	@Attribute Integer printColorCode;
 	
-	public PrintElementSetup (Font defaultFont, Point anchorPoint, Color printColor) {
+	public PrintElementSetup (Font defaultFont, Point anchorPoint, Integer fieldWidth, Color printColor) {
 		printFont = defaultFont;
 		fontFamily = printFont.getFamily();
 		fontStyle = printFont.getStyle();
 		fontSize = printFont.getSize();
 		this.anchorPoint = anchorPoint;
 		this.printColor = printColor;
+		this.fieldWidth = fieldWidth;
 		printColorCode = printColor.getRGB();
 	}
 
@@ -66,12 +69,20 @@ public class PrintElementSetup {
 	public Point getAnchorPoint() {
 		return anchorPoint;
 	}
+	
+	public Integer getFieldWidth () {
+		return fieldWidth;
+	}
 
 	/**
 	 * @param anchorPoint the anchorPoint to set
 	 */
 	public void setAnchorPoint(Point anchorPoint) {
 		this.anchorPoint = anchorPoint;
+	}
+	
+	public void setFieldWidth (Integer fieldWidth) {
+		this.fieldWidth = fieldWidth;
 	}
 
 	/**

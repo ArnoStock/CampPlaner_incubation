@@ -15,18 +15,22 @@ import java.awt.event.ActionListener;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 @SuppressWarnings("serial")
-public class RiverDBPanel extends JPanel implements ListSelectionListener, ActionListener {
+public class RiverDBPanel extends JPanel implements ListSelectionListener, ActionListener, DocumentListener {
 
 	private DefaultListModel<River> riverListModel;
 	private JList<River> riverList;
@@ -51,6 +55,8 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 	private JLabel minWaterLevelUnitField;
 	private JComboBox<String> unitOfWaterLevelCombo;
 	private JComboBox<Integer> wwTopLevelCombo;
+	private JTextArea commentText;
+	private JCheckBox isFavoured;
 	
 	public RiverDBPanel() {
 		super ();
@@ -83,6 +89,11 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		riverNameField = new JTextField ("Test");
 		riverNameField.setPreferredSize(new Dimension (250,20));
 		editPane.add (riverNameField, cd);
+		cl.gridy += 1; cd.gridy += 1;
+		
+		// river is favoured
+		isFavoured = new JCheckBox("Bevorzugter Fluss");
+		editPane.add (isFavoured, cd);
 		cl.gridy += 1; cd.gridy += 1;
 		
 		// start
@@ -162,6 +173,14 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		editPane.add (wwP, cd);
 		cl.gridy += 1; cd.gridy += 1;
 
+		editPane.add(new JLabel ("<html>Bemerkung: <br> <br> <br> <br> </html>"), cl);
+		commentText = new JTextArea ();
+		commentText.getDocument().addDocumentListener(this);
+		commentText.setText("\n\n");
+		cd.gridheight = 3; cd.fill = GridBagConstraints.BOTH;
+		editPane.add (commentText, cd);		
+		cl.gridy += 1; cd.gridy += 1;
+		
 		setEditFieldsEditable (false);
 		
 		// Buttons
@@ -230,6 +249,8 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		unitOfWaterLevelCombo.setSelectedItem(selRiver.getUnitOfWaterLevel());
 		minWaterLevelUnitField.setText (selRiver.getUnitOfWaterLevel());
 		maxWaterLevelUnitField.setText (selRiver.getUnitOfWaterLevel());
+		commentText.setText(selRiver.getComment());
+		isFavoured.setSelected(selRiver.getIsFavoured());
 	}
 
 	private void storeEditData () {
@@ -247,6 +268,8 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		selRiver.setMinWaterLevel(Integer.parseInt(minWaterLevelField.getText()));
 		selRiver.setMaxWaterLevel(Integer.parseInt(maxWaterLevelField.getText()));
 		selRiver.setUnitOfWaterLevel(unitOfWaterLevelCombo.getSelectedItem().toString());
+		selRiver.setComment(commentText.getText());
+		selRiver.setIsFavoured(isFavoured.isSelected());
 		
 		// sort list
 		MainWindow.riverDB.sort();
@@ -284,6 +307,8 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		minWaterLevelField.setEditable(ed);
 		maxWaterLevelField.setEditable(ed);
 		unitOfWaterLevelCombo.setEnabled(ed);
+		commentText.setEnabled(ed);
+		isFavoured.setEnabled(ed);
 	}
 	
 	// 0: copy - delete - edit enabled
@@ -365,9 +390,28 @@ public class RiverDBPanel extends JPanel implements ListSelectionListener, Actio
 		if ((riverListModel == null) || (MainWindow.riverDB == null))
 			return;
 		riverListModel.removeAllElements();
-		for (River r: MainWindow.riverDB.getAllRivers()) {
+		for (River r: MainWindow.riverDB.getAllRivers(true)) {
     		riverListModel.addElement( r);
 	    }
+		riverList.setSelectedIndex(0);
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

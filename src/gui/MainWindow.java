@@ -34,7 +34,7 @@ import tripDB.TripDBPanel;
 
 public class MainWindow extends JFrame {
 
-	public static final String versionString = "V0.3";
+	public static final String versionString = "V1.0";
 	public static RiverDB riverDB;
 	public static RosterDB rosterDB;
 	public static TripDB tripDB;

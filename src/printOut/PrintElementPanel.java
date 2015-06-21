@@ -26,6 +26,7 @@ public class PrintElementPanel extends JPanel implements ActionListener, KeyList
 	private JButton colorSetup;
 	private JTextField xPos;
 	private JTextField yPos;
+	private JTextField fWidth;
 	private JLabel parameterName;
 	private JLabel example;
 	private int myIndex;
@@ -53,12 +54,16 @@ public class PrintElementPanel extends JPanel implements ActionListener, KeyList
 		yPos = new JTextField ("0000");
 		yPos.setPreferredSize(yPos.getPreferredSize());
 		yPos.addKeyListener(this);
+		fWidth = new JTextField ("0000");
+		fWidth.setPreferredSize(fWidth.getPreferredSize());
+		fWidth.addKeyListener(this);
 
 		add (parameterName);
 		add (fontSetup);
 		add (colorSetup);
 		add (xPos);
 		add (yPos);
+		add (fWidth);
 		example = new JLabel ("Beispiel"); 
 		add (example);
 		updateElements ();
@@ -93,6 +98,7 @@ public class PrintElementPanel extends JPanel implements ActionListener, KeyList
 		example.setForeground(setupData.getPrintColor());
 		xPos.setText("" + setupData.getAnchorPoint().x);
 		yPos.setText("" + setupData.getAnchorPoint().y);
+		fWidth.setText("" + setupData.getFieldWidth());
 		
 	}
 	
@@ -115,6 +121,9 @@ public class PrintElementPanel extends JPanel implements ActionListener, KeyList
 			Integer x = Integer.decode(xPos.getText());
 			Integer y = Integer.decode(yPos.getText());
 			setupData.setAnchorPoint(new Point (x, y));
+		}
+		if (ke.getSource().equals(fWidth)) {
+			setupData.setFieldWidth(Integer.decode(fWidth.getText()));
 		}
 	}
 

@@ -47,10 +47,12 @@ public class RiverDB implements PropertyChangeListener {
 
 	public void add(	String riverName, String tripFrom, String tripTo, String wwLevel, int wwTopLevel, 
 						int tripLength, int distanceToStart, String country, String riverInfo, 
-						int minWaterLevel, int maxWaterLevel, String unitOfWaterLevel, int defaultGroupSize) {
+						int minWaterLevel, int maxWaterLevel, String unitOfWaterLevel, int defaultGroupSize,
+						String defaultComment, boolean isFavoured) {
 		
 		rivers.add(	new River( 	this, riverName, tripFrom, tripTo, wwLevel, wwTopLevel, tripLength, distanceToStart, 
-								country, riverInfo, minWaterLevel, maxWaterLevel, unitOfWaterLevel, defaultGroupSize));
+								country, riverInfo, minWaterLevel, maxWaterLevel, unitOfWaterLevel, defaultGroupSize, 
+								defaultComment, isFavoured));
     	isDataChanged = true;
 	
 	}
@@ -97,9 +99,19 @@ public class RiverDB implements PropertyChangeListener {
 	}
 
 	
-	public List<River> getAllRivers () {
+	public List<River> getAllRivers (boolean getAll) {
 		
-		return rivers;
+		if (getAll)
+			return rivers;
+		List <River> filteredRivers;
+		filteredRivers = new ArrayList<River>();
+		for (River r: rivers) {
+			if (r.getIsFavoured()) {
+				filteredRivers.add(r);
+			}
+		}
+		return filteredRivers;
+		
 	}
 	
 	@Override
@@ -192,7 +204,7 @@ public class RiverDB implements PropertyChangeListener {
 							Integer.parseInt(lcsvp.getValueByLabel("Km")), Integer.parseInt(lcsvp.getValueByLabel("Entfernung")),
 							lcsvp.getValueByLabel("Land"), lcsvp.getValueByLabel("Info"),
 							Integer.parseInt(lcsvp.getValueByLabel("Min")), Integer.parseInt(lcsvp.getValueByLabel("Max")), lcsvp.getValueByLabel("Einheit"), 
-							Integer.parseInt(lcsvp.getValueByLabel("Teilnehmer")));
+							Integer.parseInt(lcsvp.getValueByLabel("Teilnehmer")), "", Integer.parseInt(lcsvp.getValueByLabel("Favorit")) == 1);
 
 				}
 			} catch (IllegalStateException e) {
@@ -220,14 +232,18 @@ public class RiverDB implements PropertyChangeListener {
 
 	    try {
 	    	outputStream = new FileWriter(absolutePath);
-	    	outputStream.write("Nr.,Land,Fluss,Einstieg,Ausstieg,Entfernung,Km,WW,WW Stufe,Info,Min,Max,Einheit,Teilnehmer\n");
+	    	outputStream.write("Nr.,Land,Fluss,Einstieg,Ausstieg,Entfernung,Km,WW,WW Stufe,Info,Min,Max,Einheit,Teilnehmer,Favorit\n");
 	    	int i = 1;
-	    	for (River r: riverDB.getAllRivers()) {
+	    	for (River r: riverDB.getAllRivers(true)) {
 		    	outputStream.write( i++ + "," + r.getCountry() + "," + r.getRiverName() + "," + r.getTripFrom() + "," +
 		    						r.getTripTo() + "," + r.getDistanceToStart() + "," + r.getTripLength() + "," +
 		    						r.getWwLevel() + "," + r.getWwTopLevel() + "," + r.getRiverInfo() + "," +
 		    						r.getMinWaterLevel() + "," + r.getMaxWaterLevel() + "," + r.getUnitOfWaterLevel() + "," +
-		    						r.getDefaultGroupSize() + "\n");
+		    						r.getDefaultGroupSize());
+		    	if (r.getIsFavoured())
+		    		outputStream.write(",1\n");
+		    	else 
+		    		outputStream.write(",0\n");
 	    	}
 	    	
 	    } catch (IOException e) {

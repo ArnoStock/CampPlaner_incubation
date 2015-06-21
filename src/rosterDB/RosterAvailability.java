@@ -21,10 +21,11 @@ public class RosterAvailability extends Object {
 
 	public final static String getAvailabilityString (int availabilityCode) {
 			switch (availabilityCode) {
-			case ROSTER_ABSENT: return "-";
-			case ROSTER_PARTICIPATES: return "T"; // Teilnehmer
-			case ROSTER_VACATION: return "U"; // Urlaub
-			case ROSTER_AVAILABLE: return "A"; // Arbeitet
+			case ROSTER_ABSENT: 		return "-";
+			case ROSTER_PARTICIPATES: 	return "T"; // Teilnehmer
+			case ROSTER_VACATION: 		return "U"; // Urlaub
+			case ROSTER_AVAILABLE: 		return "A"; // Arbeitet
+			case ROSTER_OFFICE : 		return "AB"; // Arbeitet & Bürodienst
 		}
 		return "-";
 	}
@@ -33,18 +34,20 @@ public class RosterAvailability extends Object {
 		
 		if (isSelected) {
 			switch (availabilityCode) {
-				case ROSTER_ABSENT: return Color.decode("0x202020");
-				case ROSTER_PARTICIPATES: return Color.decode("0x202020");
-				case ROSTER_VACATION: return Color.decode("0xE0E0E0");
-				case ROSTER_AVAILABLE: return Color.decode("0x202020");
+				case ROSTER_ABSENT:			return Color.decode("0x202020");
+				case ROSTER_PARTICIPATES:	return Color.decode("0x202020");
+				case ROSTER_VACATION:		return Color.decode("0xE0E0E0");
+				case ROSTER_AVAILABLE:		return Color.decode("0x202020");
+				case ROSTER_OFFICE:			return Color.decode("0xF0F040");
 			}
 		}
 		
 		switch (availabilityCode) {
-			case ROSTER_ABSENT: return Color.BLACK;
-			case ROSTER_PARTICIPATES: return Color.BLACK;
-			case ROSTER_VACATION: return Color.WHITE;
-			case ROSTER_AVAILABLE: return Color.BLACK;
+			case ROSTER_ABSENT: 		return Color.BLACK;
+			case ROSTER_PARTICIPATES: 	return Color.BLACK;
+			case ROSTER_VACATION: 		return Color.WHITE;
+			case ROSTER_AVAILABLE: 		return Color.BLACK;
+			case ROSTER_OFFICE: 		return Color.YELLOW;
 		}
 		return Color.WHITE;
 	}
@@ -54,18 +57,20 @@ public class RosterAvailability extends Object {
 		
 		if (isSelected) {
 				switch (availabilityCode) {
-				case ROSTER_ABSENT: return Color.decode("0xE0E0E0");
-				case ROSTER_PARTICIPATES: return Color.decode("0xE0E080");
-				case ROSTER_VACATION: return Color.decode("0x0080E0");
-				case ROSTER_AVAILABLE: return Color.decode("0x00E080");
+				case ROSTER_ABSENT: 		return Color.decode("0xE0E0E0");
+				case ROSTER_PARTICIPATES: 	return Color.decode("0xE0E080");
+				case ROSTER_VACATION: 		return Color.decode("0x0080E0");
+				case ROSTER_AVAILABLE: 		return Color.decode("0x00E080");
+				case ROSTER_OFFICE: 		return Color.decode("0x00E080");
 			}
 		}
 		
 		switch (availabilityCode) {
-			case ROSTER_ABSENT: return Color.decode("0xFFFFFF");
-			case ROSTER_PARTICIPATES: return Color.decode("0xFFFF00");
-			case ROSTER_VACATION: return Color.decode("0x0000FF");
-			case ROSTER_AVAILABLE: return Color.decode("0x00FF00");
+			case ROSTER_ABSENT: 		return Color.decode("0xFFFFFF");
+			case ROSTER_PARTICIPATES: 	return Color.decode("0xFFFF00");
+			case ROSTER_VACATION: 		return Color.decode("0x0000FF");
+			case ROSTER_AVAILABLE: 		return Color.decode("0x00FF00");
+			case ROSTER_OFFICE: 		return Color.decode("0x40A040");
 		}
 		return Color.WHITE;
 	}
@@ -81,6 +86,7 @@ public class RosterAvailability extends Object {
 	public final static int ROSTER_PARTICIPATES = 1;
 	public final static int ROSTER_VACATION = 2;
 	public final static int ROSTER_AVAILABLE = 3;
+	public final static int ROSTER_OFFICE = 4; // available & office service
 	
 	/*
 	 * Availability at this date:
@@ -88,6 +94,7 @@ public class RosterAvailability extends Object {
 	 * 1: participant
 	 * 2: vacation
 	 * 3: working
+	 * 4: working & office
 	 * 
 	 * */
 	@Attribute

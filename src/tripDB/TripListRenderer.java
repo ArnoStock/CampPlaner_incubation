@@ -1,6 +1,7 @@
 package tripDB;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -12,6 +13,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+import riverDB.River;
+
 @SuppressWarnings("serial")
 public class TripListRenderer extends JPanel implements ListCellRenderer<TripComponent> {
 
@@ -19,6 +22,8 @@ public class TripListRenderer extends JPanel implements ListCellRenderer<TripCom
 	JLabel tripFromToLabel;
 	JLabel wwTopLevelLabel;
 	JLabel rosterNamesLabel;
+	JPanel topPanel;
+	JPanel centerPanel;
 	
 	public TripListRenderer () {
 		super (new BorderLayout());
@@ -27,16 +32,18 @@ public class TripListRenderer extends JPanel implements ListCellRenderer<TripCom
 		tripFromToLabel = new JLabel ();
 		wwTopLevelLabel = new JLabel ();
 		rosterNamesLabel = new JLabel ();
-		JPanel topPanel = new JPanel (new BorderLayout ());
+		topPanel = new JPanel (new BorderLayout ());
 		
-		tripFromToLabel.setFont(riverNameLabel.getFont().deriveFont(Font.ITALIC));
+		Font stdFont = riverNameLabel.getFont();
+		riverNameLabel.setFont(stdFont.deriveFont((float) (stdFont.getSize()*1.3)));
+		tripFromToLabel.setFont(stdFont.deriveFont(Font.ITALIC + Font.BOLD));
 		tripFromToLabel.setPreferredSize(new Dimension (200,20));
 
 		topPanel.add (riverNameLabel, BorderLayout.WEST);
 		topPanel.add (wwTopLevelLabel, BorderLayout.EAST);
 		add (topPanel, BorderLayout.NORTH);
 		
-		JPanel centerPanel = new JPanel (new GridLayout (2, 1));
+		centerPanel = new JPanel (new GridLayout (2, 1));
 		centerPanel.add (tripFromToLabel);
 		centerPanel.add (rosterNamesLabel);
 		add (centerPanel, BorderLayout.CENTER);
@@ -54,17 +61,32 @@ public class TripListRenderer extends JPanel implements ListCellRenderer<TripCom
 		wwTopLevelLabel.setText ("\u02AC" + value.getWwTopLevel());
 		tripFromToLabel.setText ("   " + value.getFromToString());
 		
+		if (isSelected)
+			setTextColor (Color.BLUE);
+		else {
+			setTextColor (Color.BLACK);
+		}
 		rosterNamesLabel.setForeground(value.getRosterColor());
 		rosterNamesLabel.setText(value.getRosterNames());
 		
 		if (isSelected) {
             setBackground(list.getSelectionBackground());
+            centerPanel.setBackground(list.getSelectionBackground());
             setForeground(list.getSelectionForeground());
         } else {
             setBackground(list.getBackground());
+            centerPanel.setBackground(list.getBackground());
             setForeground(list.getForeground());
         }
+    	topPanel.setBackground(River.getRiverColor(Integer.decode(value.getWwTopLevel())));
+    	
 		return this;
+	}
+	
+	private void setTextColor (Color fg) {
+		riverNameLabel.setForeground(fg);
+		wwTopLevelLabel.setForeground(fg);
+		tripFromToLabel.setForeground(fg);
 	}
 
 

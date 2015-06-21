@@ -50,7 +50,7 @@ public class PrintElementSetupList {
 		printElements = new ArrayList<PrintElementSetup>();
 		
 		for (int i = 0; i < PARA_COUNT; i++) {
-			printElements.add(new PrintElementSetup (defaultFont, new Point (0,0), Color.black));
+			printElements.add(new PrintElementSetup (defaultFont, new Point (0,0), 400, Color.black));
 		}
 		setDefaultPrintElementConfiguration (defaultFont);
 	}
@@ -64,7 +64,7 @@ public class PrintElementSetupList {
 		printElements = new ArrayList<PrintElementSetup>();
 		
 		for (int i = 0; i < PARA_COUNT; i++) {
-			printElements.add(new PrintElementSetup (defaultFont, new Point (0,0), Color.black));
+			printElements.add(new PrintElementSetup (defaultFont, new Point (0,0), 400, Color.black));
 		}
 		
 		Font lFont = printElements.get(FONT_GROUP_NUMBER).getPrintFont().deriveFont(Font.BOLD, 26.0f);
@@ -78,16 +78,16 @@ public class PrintElementSetupList {
 		printElements.get(FONT_GROUP_SIZE).setAnchorPoint(new Point (290, 345));
 
 		printElements.get(FONT_RIVERNAME).setPrintFont(sFont);
-		printElements.get(FONT_RIVERNAME).setAnchorPoint(new Point (260, 123));
+		printElements.get(FONT_RIVERNAME).setAnchorPoint(new Point (260, 121));
 
 		printElements.get(FONT_GROUP_DAY).setPrintFont(sFont);
-		printElements.get(FONT_GROUP_DAY).setAnchorPoint(new Point (335, 97));
+		printElements.get(FONT_GROUP_DAY).setAnchorPoint(new Point (335, 95));
 
 		printElements.get(FONT_GROUP_DATE).setPrintFont(sFont);
-		printElements.get(FONT_GROUP_DATE).setAnchorPoint(new Point (485, 97));
+		printElements.get(FONT_GROUP_DATE).setAnchorPoint(new Point (485, 95));
 		
 		printElements.get(FONT_WW_LEVEL).setPrintFont(mFont);
-		printElements.get(FONT_WW_LEVEL).setAnchorPoint(new Point (133, 190));
+		printElements.get(FONT_WW_LEVEL).setAnchorPoint(new Point (133, 189));
 		
 		printElements.get(FONT_TOUR).setPrintFont(lFont);
 		printElements.get(FONT_TOUR).setAnchorPoint(new Point (144, 132));
@@ -96,13 +96,13 @@ public class PrintElementSetupList {
 		printElements.get(FONT_EDUCATION).setAnchorPoint(new Point (144, 158));
 
 		printElements.get(FONT_FROM).setPrintFont(sFont);
-		printElements.get(FONT_FROM).setAnchorPoint(new Point (240, 147));
+		printElements.get(FONT_FROM).setAnchorPoint(new Point (240, 145));
 
 		printElements.get(FONT_TO).setPrintFont(sFont);
-		printElements.get(FONT_TO).setAnchorPoint(new Point (430, 147));
+		printElements.get(FONT_TO).setAnchorPoint(new Point (430, 145));
 
 		printElements.get(FONT_TRIP_LENGTH).setPrintFont(sFont);
-		printElements.get(FONT_TRIP_LENGTH).setAnchorPoint(new Point (510, 123));
+		printElements.get(FONT_TRIP_LENGTH).setAnchorPoint(new Point (510, 121));
 
 		printElements.get(FONT_DISTANCE).setPrintFont(mFont);
 		printElements.get(FONT_DISTANCE).setAnchorPoint(new Point (435, 171));

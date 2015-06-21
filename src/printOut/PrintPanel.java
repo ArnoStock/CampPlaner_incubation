@@ -66,7 +66,7 @@ public class PrintPanel extends JPanel implements Printable {
         putText (g2d, tripsOfDay.get(pageIndex).getRiver().getTripTo(), PrintElementSetupList.FONT_TO);
         putText (g2d, "" + tripsOfDay.get(pageIndex).getRiver().getTripLength(), PrintElementSetupList.FONT_TRIP_LENGTH);
 
-        putText (g2d, new SimpleDateFormat("hh.mm").format(tripsOfDay.get(pageIndex).getTripStartTime()) , PrintElementSetupList.FONT_TIME);
+        putText (g2d, new SimpleDateFormat("HH:mm").format(tripsOfDay.get(pageIndex).getTripStartTime()) , PrintElementSetupList.FONT_TIME);
         putText (g2d, "" + tripsOfDay.get(pageIndex).getRiver().getDistanceToStart(), PrintElementSetupList.FONT_DISTANCE);
 
         putComment (g2d, "" + tripsOfDay.get(pageIndex).getComment(), PrintElementSetupList.FONT_COMMENT);
@@ -82,9 +82,17 @@ public class PrintPanel extends JPanel implements Printable {
         	xout_car (g2d, PrintElementSetupList.PARA_XOUT_CAR_3);
         }
         
-        xout_participants (g2d, PrintElementSetupList.PARA_XOUT_PARTICIPANTS_1, 
-        						PrintElementSetupList.PARA_XOUT_PARTICIPANTS_2, 
-        						tripsOfDay.get(pageIndex).getGroupSize()- tripsOfDay.get(pageIndex).getDriverCount());
+        if (tripsOfDay.get(pageIndex).getIsKidsTour()) {
+        	xout_participants (g2d, PrintElementSetupList.PARA_XOUT_PARTICIPANTS_1, 
+        					PrintElementSetupList.PARA_XOUT_PARTICIPANTS_2, 
+        					tripsOfDay.get(pageIndex).getGroupSize());
+        	// FIXME: patch driver label
+        }
+        else {
+            xout_participants (g2d, PrintElementSetupList.PARA_XOUT_PARTICIPANTS_1, 
+            				PrintElementSetupList.PARA_XOUT_PARTICIPANTS_2, 
+            				tripsOfDay.get(pageIndex).getGroupSize()- tripsOfDay.get(pageIndex).getDriverCount());
+        }
 
         g.setFont(oldFont);
 		return PAGE_EXISTS;
@@ -92,7 +100,18 @@ public class PrintPanel extends JPanel implements Printable {
 	
 	private void putText (Graphics2D g2d, String t, int i) {
 
-		g2d.setFont(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintFont());
+		Integer fWidth = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getFieldWidth();
+		Font font = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintFont();
+		Integer fontSize = font.getSize();
+		Integer minFontSize = fontSize / 2;
+		
+		g2d.setFont(font);
+		while ((fWidth < g2d.getFontMetrics().getStringBounds(t, g2d).getWidth()) &&
+				( fontSize > minFontSize )) {
+			fontSize = fontSize -1;
+			g2d.setFont(font.deriveFont((float)fontSize));
+		}
+		
 		g2d.setColor(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintColor());
         Point a = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getAnchorPoint();
         g2d.drawString(t, a.x, a.y);
@@ -100,9 +119,17 @@ public class PrintPanel extends JPanel implements Printable {
 	
 	private void putComment (Graphics2D g2d, String t, int i) {
 
+		Integer fWidth = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getFieldWidth();
+		Font font = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintFont();
+		Integer fontSize = font.getSize();
+		Integer minFontSize = fontSize / 2;
+		
+		g2d.setFont(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintFont());
+
 		if ((t == null) || (t.equals(""))) {
 			return;
 		}
+	
 		g2d.setColor(MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getPrintColor());
         Point a = MainWindow.setupData.getPrintElementSetupList().getPrintElementSetup (i).getAnchorPoint();
         TextLayout tl = new TextLayout("AbcdefghijklmnopqrstuvwyxzABCDEFGHIJKLMNOPQRSTUVWXYZ", 
@@ -110,6 +137,14 @@ public class PrintPanel extends JPanel implements Printable {
         		g2d.getFontRenderContext());
         String[] outputs = t.split("\n");
         for(int l=0; l<outputs.length; l++){
+        	
+    		g2d.setFont(font);
+    		while ((fWidth < g2d.getFontMetrics().getStringBounds(outputs[l], g2d).getWidth()) &&
+    				( fontSize > minFontSize )) {
+    			fontSize = fontSize -1;
+    			g2d.setFont(font.deriveFont((float)fontSize));
+    		}
+        	
             g2d.drawString(outputs[l], a.x,(int) (a.getY()+l*tl.getBounds().getHeight()*1.3));
         }
 	}

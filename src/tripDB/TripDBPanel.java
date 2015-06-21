@@ -58,6 +58,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	private JLabel tfTotal;
 	private JLabel tfRoster;
 	private int availableRosters;
+    private JCheckBox showAllRivers;
 	
 	private JList<TripComponent> tripList;
 	private DefaultListModel<TripComponent> tripListModel;
@@ -72,6 +73,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	private JButton btnDelete;
 	private JButton btnUp;
 	private JButton btnDown;
+	private JButton btnCopy;
 	private JTabbedPane tabpanePlanningSteps;
 	private JPanel leftPanel;
 	private JPanel headerPanel;
@@ -84,6 +86,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
     private JLabel detailsWwLevel;
     private JLabel detailsDistanceToStart;
     private JCheckBox detailsIsEducation;
+    private JCheckBox detailsIsKidsTour;
 	private JComboBox<Integer> detailsGroupSize;
 	private JComboBox<Integer> detailsDriverCount;
 	private JList<RosterComponent> detailsRosterList;
@@ -91,6 +94,9 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	private JButton detailsRosterRemoveBtn;
 	private JTextArea detailsCommentText;
 	private JSpinner detailsStartTimeSpinner;
+	private final Integer startTimeButtonsCount = 6;
+	private final Integer startTimeButtonStartHour = 9;
+	private final Integer startTimeButtonStartMinute = 45;
 	private JButton nextDayButton;
 	private JButton prevDayButton;
 	
@@ -113,8 +119,6 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 
 	    headerPanel = new JPanel ( new BorderLayout ());
 
-//	    prevDayButton = new JButton ("<");
-//	    nextDayButton = new JButton (">");
 	    prevDayButton = new JButton (MainWindow.getImageIcon("toolbarButtonGraphics/navigation/Back16.gif"));
 	    nextDayButton = new JButton (MainWindow.getImageIcon("toolbarButtonGraphics/navigation/Forward16.gif"));
 	    prevDayButton.addActionListener(this);
@@ -174,19 +178,6 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    riverList.setDragEnabled(true);
 	    riverList.setTransferHandler(new RiverListTransferHandler(this));
         
-        // create panel to select roster information
-        JPanel panelRosters = new JPanel ( new BorderLayout ());
-        panelRosters.setBackground(Color.YELLOW);
-        tabpanePlanningSteps.addTab("Fahrtenleiter", panelRosters);
-	    rosterListModel = new DefaultListModel<RosterComponent>();  
-	    // create trip list in left panel
-	    rosterList = new JList<RosterComponent> (rosterListModel);
-	    rosterList.setCellRenderer(new RosterListRenderer(targetDay));
-	    updateRosterList ();
-	    panelRosters.add (new JScrollPane(rosterList), BorderLayout.CENTER);
-	    rosterList.setDragEnabled(true);
-	    rosterList.setTransferHandler(new RosterListTransferHandler(this));
-	    
 	    // create panel with trip details
 		JPanel panelDetails = new JPanel ( new BorderLayout ());
         panelDetails.setBackground(new Color (220, 220, 220));
@@ -204,9 +195,16 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    detailsGridPanel.add (detailsWwLevel);
 	    detailsDistanceToStart = new JLabel ("Anfahrt: 0km");
 	    detailsGridPanel.add (detailsDistanceToStart);
+	    
+	    JPanel TripTypePanel = new JPanel (new FlowLayout (FlowLayout.LEADING));
 	    detailsIsEducation = new JCheckBox ("Schulung");
 	    detailsIsEducation.addActionListener(this);
-	    detailsGridPanel.add (detailsIsEducation);
+	    TripTypePanel.add (detailsIsEducation);
+	    detailsIsKidsTour = new JCheckBox ("Kids/Teenie-Tour");
+	    detailsIsKidsTour.addActionListener(this);
+	    detailsIsKidsTour.setToolTipText("Autofahrer z�hlen nicht zur Gruppe dazu.");
+	    TripTypePanel.add(detailsIsKidsTour);
+	    detailsGridPanel.add(TripTypePanel);
 	    
 	    JPanel grPanel = new JPanel (new FlowLayout (FlowLayout.LEADING));
 	    grPanel.add (new JLabel ("Gruppengr\u00f6\u00dfe:"));
@@ -218,11 +216,24 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    
 	    JPanel drPanel = new JPanel (new FlowLayout (FlowLayout.LEADING));
 	    drPanel.add(new JLabel ("Fahrer:"));
-	    Integer drivers[] = {1, 2, 3};
+	    Integer drivers[] = {0, 1, 2, 3};
 	    detailsDriverCount = new JComboBox<Integer>(drivers);
 	    detailsDriverCount.addActionListener(this);
 	    drPanel.add (detailsDriverCount);
 	    detailsGridPanel.add (drPanel);
+	    
+        // create panel to select roster information
+        JPanel panelRosters = new JPanel ( new BorderLayout ());
+        panelRosters.setBackground(Color.YELLOW);
+        tabpanePlanningSteps.addTab("Fahrtenleiter", panelRosters);
+	    rosterListModel = new DefaultListModel<RosterComponent>();  
+	    // create trip list in left panel
+	    rosterList = new JList<RosterComponent> (rosterListModel);
+	    rosterList.setCellRenderer(new RosterListRenderer(targetDay));
+	    updateRosterList ();
+	    panelRosters.add (new JScrollPane(rosterList), BorderLayout.CENTER);
+	    rosterList.setDragEnabled(true);
+	    rosterList.setTransferHandler(new RosterListTransferHandler(this));
 	    
         //Add the start time spinner.
 	    JPanel timePanel = new JPanel (new FlowLayout(FlowLayout.LEADING));
@@ -242,6 +253,16 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
         detailsStartTimeSpinner.setEditor(new JSpinner.DateEditor(detailsStartTimeSpinner, "HH:mm"));
         detailsStartTimeSpinner.addChangeListener(this);
         timePanel.add(detailsStartTimeSpinner);
+        Calendar cal = Calendar.getInstance();
+    	cal.set (Calendar.HOUR_OF_DAY, startTimeButtonStartHour);
+    	cal.set (Calendar.MINUTE, startTimeButtonStartMinute);
+        for (int i = 0; i < startTimeButtonsCount; i++) {
+        	JButton tb = new JButton (new SimpleDateFormat("HH:mm").format(cal.getTime()));
+        	tb.addActionListener(this);
+        	tb.setActionCommand("SetTime");
+        	timePanel.add (tb);
+        	cal.add(Calendar.MINUTE, 15);
+        }
 	    detailsGridPanel.add (timePanel);
 	    
 	    panelDetails.add (detailsGridPanel, BorderLayout.NORTH);
@@ -290,7 +311,8 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	     * Add center panel with buttons
 	     */
 	    JPanel btnPanel = new JPanel ( );
-	    btnPanel.setLayout( new GridLayout (7,1) );
+	    btnPanel.setLayout( new GridLayout (9,1) );
+
 	    btnAdd = new JButton ("+ Hinzu");
 	    btnPanel.add(btnAdd);
 	    Dimension minSize = new Dimension(5, 10);
@@ -298,6 +320,9 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    Dimension maxSize = new Dimension(5, 20);
 	    btnUpdate = new JButton ("\u23CE Ersetzen");
 	    btnPanel.add(btnUpdate);
+	    btnCopy = new JButton ("Kopie");
+	    btnCopy.setEnabled(false);
+	    btnPanel.add(btnCopy);
 	    btnPanel.add(new Box.Filler(minSize, prefSize, maxSize));
 	    btnUp = new JButton ("\u2206 Auf");
 	    btnUp.setEnabled(false);
@@ -309,15 +334,31 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    btnDelete = new JButton ("\u2297 L\u00F6schen");
 	    btnDelete.setEnabled(false);
 	    btnPanel.add(btnDelete);
-	    JPanel btnAreaPanel = new JPanel (new GridBagLayout ());
+	    
+	    JPanel btnWrapper = new JPanel (new GridBagLayout());
+
+	    JPanel btnAreaPanel = new JPanel (new BorderLayout ());
 	    
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridwidth = 1;
 		c.gridx = 0;
-		c.gridy = 0;
+		c.gridy = 1;
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.CENTER;
-	    btnAreaPanel.add(btnPanel, c);
+	    btnWrapper.add(btnPanel, c);
+
+		btnAreaPanel.add(btnWrapper, BorderLayout.CENTER);
+
+	    showAllRivers = new JCheckBox("Alle Flüsse");
+		showAllRivers.setSelected(true);
+		showAllRivers.addActionListener(this);
+		c.gridy = 0;
+		c.fill = GridBagConstraints.VERTICAL;
+	    JPanel showAllRiversPanel = new JPanel (new BorderLayout ());
+	    showAllRiversPanel.add (showAllRivers, BorderLayout.PAGE_START);
+		c.anchor = GridBagConstraints.PAGE_START;
+//		btnAreaPanel.add (showAllRiversPanel, c);
+		btnAreaPanel.add (showAllRiversPanel, BorderLayout.PAGE_START);
 	    
 	    btnAdd.addActionListener(this);
 	    btnAdd.setActionCommand("Add");
@@ -329,6 +370,8 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    btnUp.setActionCommand("Up");
 	    btnDown.addActionListener(this);
 	    btnDown.setActionCommand("Down");
+	    btnCopy.addActionListener(this);
+	    btnCopy.setActionCommand("Copy");
 	    
 		// left panel for trip list and buttons
 		leftPanel = new JPanel (new BorderLayout ());
@@ -418,6 +461,9 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 		}
 		
 		if (evt.getSource().equals(tabpanePlanningSteps)) {
+			
+			showAllRivers.setVisible(tabpanePlanningSteps.getSelectedIndex() == 0);
+			
 			if (tabpanePlanningSteps.getSelectedIndex() == 3)
 				updateTimePanel();
 			if (tabpanePlanningSteps.getSelectedIndex() == 4)
@@ -436,11 +482,30 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	@Override
 	public void actionPerformed(ActionEvent evt) {
 
+		if (evt.getActionCommand().equals("SetTime")) {
+			String time = ((JButton)evt.getSource()).getText();
+			String ts[] = time.split(":");
+			Integer h = Integer.parseInt(ts[0]);
+			Integer m = Integer.parseInt(ts[1]);
+			Calendar ca = Calendar.getInstance();
+			ca.set(Calendar.HOUR_OF_DAY, h);
+			ca.set(Calendar.MINUTE, m);
+			detailsStartTimeSpinner.setValue(ca.getTime());
+		}
+		
 		if (evt.getSource().equals(detailsIsEducation)) {
 			TripComponent t = tripList.getSelectedValue();
 			if (t == null)
 				return;
 			t.getTrip().setIsEducation(detailsIsEducation.isSelected());
+			return;
+		}
+		
+		if (evt.getSource().equals(detailsIsKidsTour)) {
+			TripComponent t = tripList.getSelectedValue();
+			if (t == null)
+				return;
+			t.getTrip().setIsKidsTour(detailsIsKidsTour.isSelected());
 			return;
 		}
 		
@@ -457,7 +522,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			TripComponent t = tripList.getSelectedValue();
 			if (t == null)
 				return;
-			t.getTrip().setDriverCount(detailsDriverCount.getSelectedIndex()+1);
+			t.getTrip().setDriverCount(detailsDriverCount.getSelectedIndex());
 			return;
 		}
 		
@@ -568,6 +633,49 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 				}
 			}
 		}
+
+		if (evt.getActionCommand().contentEquals("Copy")) {
+
+			List<TripComponent> selectedTrips = tripList.getSelectedValuesList();
+			if (!selectedTrips.isEmpty()){
+
+				// if rosters are selected, the first selected trip will be copied for
+				// each selected roster. If no roster is selected, all selected trips
+				// will be copied to the end of the list
+				if (!rosterList.isSelectionEmpty()) {
+					
+					TripComponent tc = selectedTrips.get(0);
+					Integer i = tripList.getSelectedIndex();
+					for (RosterComponent rc: rosterList.getSelectedValuesList()) {
+						
+						if (tc.getTrip().getRosterCount() == 0) {
+							tc.getTrip().addRoster(rc.roster);
+						}
+						else {
+							Trip t = MainWindow.tripDB.add ( targetDay.getTime(), tc.getTrip());
+							t.addRoster(rc.roster);
+							i++;
+							tripListModel.add (i, new TripComponent (t));
+						}
+					}
+					tripList.invalidate();
+					tripList.repaint();
+					rosterList.repaint();
+					
+				} else {
+				
+					for (TripComponent tc: selectedTrips) {
+					
+						Trip t = MainWindow.tripDB.add ( targetDay.getTime(), tc.getTrip());
+						tripListModel.addElement (new TripComponent (t));
+					
+					}
+				}
+				updateParticipantsPanel ();
+				updateGroupIndex();
+				updateTimePanel ();
+			}
+		}
 		
 		if (evt.getActionCommand().contentEquals("Delete")) {
 			
@@ -596,6 +704,9 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			}
 		}
 		
+		if (evt.getSource().equals(showAllRivers))
+			updateRiverList();
+
 	}
 
 	public void updateTripList () {
@@ -609,6 +720,8 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 		tfRoster.setText(MainWindow.tripDB.getRosterCount(targetDay.getTime()) + "/" + availableRosters);
 		updateParticipantsPanel ();
 		panelPreview.updateTripList ();
+		if (tripList.getSelectedIndex() <0)
+			tripList.setSelectedIndex(0);
 		
 	}
 
@@ -618,7 +731,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			return;
 		
 		riverListModel.removeAllElements();
-		for (River r : MainWindow.riverDB.getAllRivers ())
+		for (River r : MainWindow.riverDB.getAllRivers (showAllRivers.isSelected()))
 			riverListModel.addElement (new RiverComponent (r));
 		
 	}
@@ -651,8 +764,9 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 	    detailsWwLevel.setText("WW Stufe: " +tr.getWwLevel() );
 	    detailsDistanceToStart.setText("Anfahrt: " + tr.getDistanceToStart() +"km");
 	    detailsIsEducation.setSelected(tr.getIsEducation());
+	    detailsIsKidsTour.setSelected(tr.getIsKidsTour());
 	    detailsGroupSize.setSelectedIndex(tr.getTotalGroupSize()-2);
-	    detailsDriverCount.setSelectedIndex(tr.getDriverCount()-1);
+	    detailsDriverCount.setSelectedIndex(tr.getDriverCount());
 	    detailsStartTimeSpinner.setValue(tr.getTripStartTime());
 	    detailsRosterListModel.clear();
 	    for (Roster r: tr.getRosterList()) {
@@ -671,6 +785,7 @@ public class TripDBPanel extends JPanel implements ChangeListener, ActionListene
 			btnUp.setEnabled(!tripList.isSelectionEmpty());
 			btnDown.setEnabled(!tripList.isSelectionEmpty());
 			btnDelete.setEnabled(!tripList.isSelectionEmpty());
+			btnCopy.setEnabled(!tripList.isSelectionEmpty());
 //		}
 		
 	}

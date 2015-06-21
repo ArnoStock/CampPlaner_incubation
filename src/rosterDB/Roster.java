@@ -85,12 +85,23 @@ public class Roster extends Component implements Comparable<Roster>{
 		if (ra == null)
 			return false;
 		
-		if (ra.getAvailabilityCode().equals(RosterAvailability.ROSTER_AVAILABLE))
+		if ((ra.getAvailabilityCode().equals(RosterAvailability.ROSTER_AVAILABLE)) || 
+				(ra.getAvailabilityCode().equals(RosterAvailability.ROSTER_OFFICE)))
 			return true;
 		
 		return false;
 	}
 	
+	public Integer getAvailabilityCount(int availabilityCode) {
+		Integer i = 0;
+		
+		for (RosterAvailability r: rosterAvailability) {
+			
+			if (r.getAvailabilityCode().equals(availabilityCode))
+				i = i +1;
+		}
+		return i;
+	}
 
 	/**
 	 * @return the givenName
@@ -223,10 +234,27 @@ public class Roster extends Component implements Comparable<Roster>{
 
 	@Override
 	public int compareTo(Roster r) {
-		String mySortString = familyName + givenName + getRosterID();
-		String otherSortString = r.familyName + r.givenName + r.getRosterID();
+		String mySortString = givenName + familyName + getRosterID();
+		String otherSortString = r.givenName + r.familyName + r.getRosterID();
 		
 		return mySortString.compareTo(otherSortString);
+	}
+	
+	// vacation rules taken from "Merkblatt Team"
+	public static int getVacationDays (int activeDays) {
+		if (activeDays < 5)
+			return 0;
+		if (activeDays < 7)
+			return 1;
+		if (activeDays < 10)
+			return 2;
+		if (activeDays < 13)
+			return 3;
+		if (activeDays < 16)
+			return 4;
+		if (activeDays < 19)
+			return 5;
+		return 6;
 	}
 
 }

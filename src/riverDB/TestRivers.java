@@ -74,7 +74,7 @@ public class TestRivers {
 							Integer.parseInt(lcsvp.getValueByLabel("Km")), Integer.parseInt(lcsvp.getValueByLabel("Entfernung")),
 							lcsvp.getValueByLabel("Land"), lcsvp.getValueByLabel("Info"),
 							Integer.parseInt(lcsvp.getValueByLabel("Min")), Integer.parseInt(lcsvp.getValueByLabel("Max")), lcsvp.getValueByLabel("Einheit"), 
-							Integer.parseInt(lcsvp.getValueByLabel("Teilnehmer")));
+							Integer.parseInt(lcsvp.getValueByLabel("Teilnehmer")), "", true);
 
 				}
 			} catch (IllegalStateException e) {

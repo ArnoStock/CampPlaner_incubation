@@ -1,0 +1,7 @@
+Dieses Programm unterst�tzt die Fahrtenplanung des
+Kanu-Camp "JEM". Seine Nutzung erfolgt im Rahmen
+der GNU GENERAL PUBLIC LICENSE Version 2. Der
+Quelltext ist unter github.com/ArnoStock/CampPlaner
+verf�gbar.
+
+(c) 2014,2015 Arno Stock

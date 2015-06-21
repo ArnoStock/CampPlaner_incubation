@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -28,8 +29,10 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import javax.swing.table.DefaultTableCellRenderer;
+
 
 @SuppressWarnings("serial")
 public class RosterDBPanel extends JPanel implements ActionListener, ListSelectionListener, PropertyChangeListener {
@@ -46,13 +49,18 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 	private JButton deleteButton;
 	private JButton editButton;
 	private JButton newButton;
+	private JButton reportButton;
 	private JScrollPane listScroller;
 	
 	private JButton absentButton;
 	private JButton participatesButton;
 	private JButton vacationButton;
 	private JButton availableButton;
+	private JButton officeButton;
 	private Checkbox isAspirantCheckBox;
+	
+	JFileChooser fc = new JFileChooser();
+
 	
 	public RosterDBPanel() {
 		super ();
@@ -78,7 +86,41 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 					setBackground(((RosterAvailability) value).getRosterAvailabilityBackGroundColor (isSelected ));
 					setForeground(((RosterAvailability) value).getRosterAvailabilityForeGroundColor (isSelected ));
 	                setHorizontalAlignment(JLabel.CENTER);
-				} 
+				}
+				// Teilnehmer
+				else if (column == 3 + MainWindow.setupData.getEventLength () -1 +1) {
+	                setHorizontalAlignment(JLabel.CENTER);
+                	setBackground(new Color (220,220,220));
+					setForeground(Color.BLACK);
+                }
+				// Aktiv
+				else if (column == 3 + MainWindow.setupData.getEventLength () -1 +2) {
+	                setHorizontalAlignment(JLabel.CENTER);
+                	setBackground(new Color (220,220,220));
+					setForeground(Color.BLACK);
+                }
+				// Büro
+				else if (column == 3 + MainWindow.setupData.getEventLength () -1 +3) {
+	                setHorizontalAlignment(JLabel.CENTER);
+                	setBackground(new Color (220,220,220));
+                	if (MainWindow.rosterDB.getRosters().get(row).getAvailabilityCount(RosterAvailability.ROSTER_OFFICE) == 1)
+                		setForeground(Color.BLACK);
+                	else setForeground(Color.YELLOW);
+                }
+				// Urlaub
+				else if (column == 3 + MainWindow.setupData.getEventLength () -1 +4) {
+	                setHorizontalAlignment(JLabel.CENTER);
+                	setBackground(new Color (220,220,220));
+                	int ava = MainWindow.rosterDB.getRosters().get(row).getAvailabilityCount(RosterAvailability.ROSTER_AVAILABLE) +
+                				MainWindow.rosterDB.getRosters().get(row).getAvailabilityCount(RosterAvailability.ROSTER_OFFICE);
+                	int vac = MainWindow.rosterDB.getRosters().get(row).getAvailabilityCount(RosterAvailability.ROSTER_VACATION);
+                	if (Roster.getVacationDays(ava) == vac)
+                		setForeground(Color.BLACK);
+                	if (Roster.getVacationDays(ava) > vac)
+                		setForeground(Color.YELLOW);
+                	if (Roster.getVacationDays(ava) < vac)
+                		setForeground(Color.RED);
+                }
 				else if (column < 2) {
 	                setHorizontalAlignment(JLabel.LEADING);
 	                if (isSelected) {
@@ -166,16 +208,21 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		cancelButton = new JButton ("Abbruch");
 		cancelButton.addActionListener(this);
 		setButtonMode (0);
+		reportButton = new JButton ("Bericht exportieren");
+		reportButton.addActionListener(this);
 		JPanel buttonPanel = new JPanel (new BorderLayout ());
 		JPanel buttonPanelNorth = new JPanel ();
+		JPanel buttonPanelCenter= new JPanel ();
 		JPanel buttonPanelSouth = new JPanel ();
 		buttonPanelNorth.add(newButton);
 		buttonPanelNorth.add(deleteButton);
-		buttonPanelSouth.add(editButton);
-		buttonPanelSouth.add(cancelButton);
-		buttonPanelSouth.add(okButton, BorderLayout.EAST);
+		buttonPanelCenter.add(editButton);
+		buttonPanelCenter.add(cancelButton);
+		buttonPanelCenter.add(okButton, BorderLayout.EAST);
+		buttonPanelSouth.add(reportButton);
 		buttonPanel.add(buttonPanelNorth, BorderLayout.NORTH);
-		buttonPanel.add(buttonPanelSouth, BorderLayout.CENTER);
+		buttonPanel.add(buttonPanelCenter, BorderLayout.CENTER);
+		buttonPanel.add(buttonPanelSouth, BorderLayout.SOUTH);
 	
 		JPanel outerShellPanel = new JPanel();
 		JPanel statusPanel = new JPanel ( new GridBagLayout ());
@@ -226,6 +273,16 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		availableButton = new JButton ("Aktiv");
 		availableButton.addActionListener(this);
 		statusPanel.add (availableButton,cb);
+		cl.gridy += 1; cb.gridy += 1;
+
+		JLabel officeLabel = new JLabel (RosterAvailability.getAvailabilityString(RosterAvailability.ROSTER_OFFICE));
+		officeLabel.setBackground(RosterAvailability.getRosterAvailabilityBackGroundColor(RosterAvailability.ROSTER_OFFICE, false));
+		officeLabel.setOpaque(true);
+		officeLabel.setPreferredSize(new Dimension (25,25));
+		statusPanel.add (officeLabel, cl);
+		officeButton = new JButton ("B\u00fcro");
+		officeButton.addActionListener(this);
+		statusPanel.add (officeButton,cb);
 		outerShellPanel.add (statusPanel);
 		
 		//Create a split pane with the two scroll panes in it.
@@ -379,9 +436,24 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 			setButtonMode(0);
 	        refreshEditData ();
 		}
+
+		if (evt.getSource().equals(reportButton)) {
+
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(
+			        "comma separated values", "csv");
+			fc.setFileFilter(filter);
+			int returnVal = fc.showDialog(this, "Dienstplan exportieren");
+			if(returnVal == JFileChooser.APPROVE_OPTION) {
+				RosterDB.writeAssignmentCSV (MainWindow.rosterDB, fc.getSelectedFile().getAbsolutePath());
+			}	  		
+			
+		}
 		
 		if (evt.getSource().equals(availableButton)) {
 			setSelectedCellContents (RosterAvailability.ROSTER_AVAILABLE);
+		}
+		if (evt.getSource().equals(officeButton)) {
+			setSelectedCellContents (RosterAvailability.ROSTER_OFFICE);
 		}
 		if (evt.getSource().equals(vacationButton)) {
 			setSelectedCellContents (RosterAvailability.ROSTER_VACATION);
@@ -418,6 +490,7 @@ public class RosterDBPanel extends JPanel implements ActionListener, ListSelecti
 		for (Roster r: MainWindow.rosterDB.getRosters()) {
 			rosterTable.add( r);
 	    }
+		rosterTable.changeSelection(0, 0, false, false);
 		rosterTableModel.fireTableDataChanged();
 	}
 
